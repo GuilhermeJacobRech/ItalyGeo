@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ItalyGeo.API", "ItalyGeo.API\ItalyGeo.API.csproj", "{EC864BF5-58CB-4037-B62C-A392219FD4A0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ItalyGeo.WikiDataExtractor", "ItalyGeo.WikiDataExtractor\ItalyGeo.WikiDataExtractor.csproj", "{64BF404D-C27E-4727-BF9C-35FAF58EC90A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC864BF5-58CB-4037-B62C-A392219FD4A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC864BF5-58CB-4037-B62C-A392219FD4A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC864BF5-58CB-4037-B62C-A392219FD4A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC864BF5-58CB-4037-B62C-A392219FD4A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64BF404D-C27E-4727-BF9C-35FAF58EC90A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64BF404D-C27E-4727-BF9C-35FAF58EC90A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64BF404D-C27E-4727-BF9C-35FAF58EC90A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64BF404D-C27E-4727-BF9C-35FAF58EC90A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CAA59FA6-70B6-4592-A592-918422A819D7}
+	EndGlobalSection
+EndGlobal

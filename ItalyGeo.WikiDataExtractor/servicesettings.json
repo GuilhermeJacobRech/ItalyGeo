@@ -1,0 +1,10 @@
+﻿{
+  "WikipediaApi": {
+    "BaseUrl": "https://it.wikipedia.org/api/rest_v1/",
+    "ApiKey": "your-api-key"
+  },
+
+  "ItalyGeoApi": {
+
+  }
+}
