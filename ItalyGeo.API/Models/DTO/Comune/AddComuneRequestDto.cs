@@ -16,6 +16,24 @@ namespace ItalyGeo.API.Models.DTO.Comune
         public decimal Longitude { get; set; }
         [Required]
         public string WikipediaPagePath { get; set; }
+        [Required]
+        public float AltitudeAboveSea { get; set; }
+        [Required]
+        public float AreaKm2 { get; set; }
+        [Required]
+        public int Population { get; set; }
+        [Required]
+        public float InhabitantsPerKm2 { get; set; }
+        [Required]
+        public string ZipCode { get; set; }
+        [Required]
+        public string Timezone { get; set; }
+        [Required]
+        public string InhabitantName { get; set; }
+        [Required]
+        public DateTime PublicHoliday { get; set; }
+        [Required]
+        public string PatronSaint { get; set; }
 
         // Validate if ProvinceId exists (taken from https://stackoverflow.com/a/53089588/10691380) 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
