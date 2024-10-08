@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Principal;
 
 namespace ItalyGeo.API.Models.Domain
 {
@@ -16,6 +17,17 @@ namespace ItalyGeo.API.Models.Domain
         public decimal Longitude { get; set; }
 
         public string WikipediaPagePath { get; set; }
+        public float AltitudeAboveSea { get; set; }
+        public float AreaKm2 { get; set; }
+        public int Population { get; set; }
+        public float InhabitantsPerKm2 { get; set; }
+        public string ZipCode { get; set; }
+        public string Timezone { get; set; }
+        public string InhabitantName { get; set; }
+        public DateTime PublicHoliday { get; set; }
+        public string PatronSaint { get; set; }
+
+
 
         // Navigation properties
         public Province Province { get; set; }
