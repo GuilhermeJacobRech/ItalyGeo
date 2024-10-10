@@ -26,7 +26,7 @@ namespace ItalyGeo.API.Models.DTO.Comune
         public string ZipCode { get; set; }
         public string Timezone { get; set; }
         public string InhabitantName { get; set; }
-        public DateTime PublicHoliday { get; set; }
+        public string PublicHoliday { get; set; }
         public string PatronSaint { get; set; }
 
         // Navigation properties

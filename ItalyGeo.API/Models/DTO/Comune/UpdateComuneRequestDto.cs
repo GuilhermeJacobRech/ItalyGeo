@@ -30,7 +30,7 @@ namespace ItalyGeo.API.Models.DTO.Comune
         [Required]
         public string InhabitantName { get; set; }
         [Required]
-        public DateTime PublicHoliday { get; set; }
+        public string PublicHoliday { get; set; }
         [Required]
         public string PatronSaint { get; set; }
 
