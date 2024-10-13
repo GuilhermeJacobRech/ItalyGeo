@@ -10,7 +10,6 @@ class Program
     static async Task Main(string[] args)
     {
         var host = CreateHostBuilder(args).Build();
-
         /*var configuration = new ConfigurationBuilder()
              .AddJsonFile($"servicesettings.json");
         var config = configuration.Build();*/
@@ -44,16 +43,18 @@ class Program
             ComuneManipulator comuneManipulator = new(wikipediaApi, italyGeoApi, logger);
             var comunesHtml = await wikipediaApi.GetPageHtmlAsync(WikiHelper.ComunesOfItalyPagePath);
 
-            var options = new ParallelOptions()
+            await foreach (var listComunesByLetter in comuneManipulator.ParseHtmlAsync(comunesHtml))
             {
-                MaxDegreeOfParallelism = 20
-            };
-
-            var comunesToAdd = await comuneManipulator.ParseHtmlAsync(comunesHtml);
-            await Parallel.ForEachAsync(comunesToAdd, options, async (comune, ct) =>
-            {
-                await italyGeoApi.CreateComuneAsync(comune);
-            });
+                Console.WriteLine("Insert executando!");
+                await Parallel.ForEachAsync(listComunesByLetter, new ParallelOptions() { MaxDegreeOfParallelism = 5 }, async (comuneByLetter, ct) =>
+                {
+                    var response = await italyGeoApi.CreateComuneAsync(comuneByLetter);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        logger.Error($"Insert of comune {comuneByLetter.Name} resulted in {response.StatusCode.ToString()} - Msg: {await response.Content.ReadAsStringAsync()}");
+                    }
+                });
+            }
 
             Log.CloseAndFlush();
         }

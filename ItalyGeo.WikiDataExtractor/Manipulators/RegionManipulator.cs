@@ -42,8 +42,8 @@ namespace WikiDataExtractor.Manipulators
 
                 // Node that contains Region PageUrl and Name
                 var node0ba = tdNodes.ElementAt(0).SelectSingleNode("b/a");
-                string wikiPagePath = StringHelper.SanitizeString(node0ba.Attributes["href"].Value);
-                string name = StringHelper.SanitizeString(node0ba.Attributes["title"].Value);
+                string wikiPagePath = StringHelper.SanitizeString(node0ba.Attributes["href"].Value, false, true);
+                string name = StringHelper.SanitizeString(node0ba.Attributes["title"].Value, false, true);
 
                 // Check if region already exists
                 var regionResponse = await _italyGeoApi.GetRegionByWikiPagePathAsync(wikiPagePath);
@@ -51,7 +51,7 @@ namespace WikiDataExtractor.Manipulators
 
                 // Node that contains Wikipedia page path of Capaluogo of this Region
                 var node1a = tdNodes.ElementAt(1).SelectSingleNode("a");
-                string capaluogoWikiPagePath = StringHelper.SanitizeString(node1a.Attributes["href"].Value);
+                string capaluogoWikiPagePath = StringHelper.SanitizeString(node1a.Attributes["href"].Value, false, true);
 
                 // Node that contains Region's Population
                 var node2 = tdNodes.ElementAt(2);
