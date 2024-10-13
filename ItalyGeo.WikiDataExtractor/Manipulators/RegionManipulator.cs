@@ -1,5 +1,4 @@
 ﻿using HtmlAgilityPack;
-using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region;
 using WikiDataExtractor.Helpers;
 using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region;
 using WikiDataExtractor.Services;
@@ -17,7 +16,7 @@ namespace WikiDataExtractor.Manipulators
             this._italyGeoApi = italyGeoApi;
         }
 
-        public async Task<List<IRegionRequest>> ParseHtmlAsync(string html)
+        public async Task<List<AddRegionRequest>> ParseHtmlAsync(string html)
         {
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(html);
@@ -30,7 +29,7 @@ namespace WikiDataExtractor.Manipulators
             // Skip header
             var tableRows = table.SelectNodes(".//tr").Skip(1);
 
-            var regionsToProcess = new List<IRegionRequest>();
+            var regionsToAdd = new List<AddRegionRequest>();
 
             // For each region
             foreach (var row in tableRows)
@@ -45,6 +44,10 @@ namespace WikiDataExtractor.Manipulators
                 var node0ba = tdNodes.ElementAt(0).SelectSingleNode("b/a");
                 string wikiPagePath = StringHelper.SanitizeString(node0ba.Attributes["href"].Value, false, true);
                 string name = StringHelper.SanitizeString(node0ba.Attributes["title"].Value, false, true);
+
+                // Check if region already exists
+                var regionResponse = await _italyGeoApi.GetRegionByWikiPagePathAsync(wikiPagePath);
+                if (regionResponse != null) continue;
 
                 // Node that contains Wikipedia page path of Capaluogo of this Region
                 var node1a = tdNodes.ElementAt(1).SelectSingleNode("a");
@@ -75,18 +78,7 @@ namespace WikiDataExtractor.Manipulators
                 // Get Region summary
                 var regionSummary = await _wikipediaApi.GetPageSummaryAsync(wikiPagePath) ?? new();
 
-                // Check if region already exists on ItalyGeo
-                var regionResponse = await _italyGeoApi.GetRegionByWikiPagePathAsync(wikiPagePath);
-                if (regionResponse != null)
-                {
-                    UpdateRegionRequest updateRegionRequest = new UpdateRegionRequest
-                    {
-                        Id = regionResponse.Id,
-                        
-                    };
-                }
-
-                regionsToProcess.Add(new AddRegionRequest
+                regionsToAdd.Add(new AddRegionRequest
                 {
                     Name = name,
                     WikipediaPagePath = wikiPagePath,
@@ -99,7 +91,7 @@ namespace WikiDataExtractor.Manipulators
                     ComuneCount = comuneCount
                 });
             }
-            return regionsToProcess;
+            return regionsToAdd;
         }
     }
 }

@@ -1,4 +1,12 @@
 ﻿using HtmlAgilityPack;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 using WikiDataExtractor.Helpers;
 using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Province;
 using WikiDataExtractor.Services;

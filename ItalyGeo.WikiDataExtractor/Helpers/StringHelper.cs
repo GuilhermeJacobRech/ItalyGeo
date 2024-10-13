@@ -1,5 +1,15 @@
-﻿using System.Globalization;
+﻿using HtmlAgilityPack;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog.Core;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Xml;
 
 namespace WikiDataExtractor.Helpers
 {
