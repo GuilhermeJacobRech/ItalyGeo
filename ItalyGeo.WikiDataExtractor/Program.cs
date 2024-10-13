@@ -5,6 +5,8 @@ using WikiDataExtractor.Manipulators;
 using WikiDataExtractor.Helpers;
 using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Auth;
 using Serilog;
+using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region;
+using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region;
 class Program
 {
     static async Task Main(string[] args)
@@ -26,21 +28,39 @@ class Program
 
         if (await italyGeoApi.AuthenticateAsync(credential))
         {
-            /*RegionManipulator regionManipulator = new(wikipediaApi, italianCitProTraApi);
+            RegionManipulator regionManipulator = new(wikipediaApi, italyGeoApi);
             var regionsHtml = await wikipediaApi.GetPageHtmlAsync(WikiHelper.RegionsOfItalyPagePath);
-            var regionsToAdd = await regionManipulator.ParseHtmlAsync(regionsHtml);
-            List<Task> TasksRegionsToAdd = [];
-            foreach (var region in regionsToAdd) TasksRegionsToAdd.Add(italianCitProTraApi.CreateRegionAsync(region));
-            await Task.WhenAll(TasksRegionsToAdd);
+            var regionsToProcess = await regionManipulator.ParseHtmlAsync(regionsHtml);
 
-            ProvinceManipulator provinceManipulator = new(wikipediaApi, italianCitProTraApi);
+            await Parallel.ForEachAsync(regionsToProcess, new ParallelOptions() { MaxDegreeOfParallelism = 5 }, async (region, ct) =>
+            {
+                if (region is AddRegionRequest addRegionRequest)
+                {
+                    var response = await italyGeoApi.CreateRegionAsync(addRegionRequest);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        logger.Error($"INSERT of region {addRegionRequest.Name} resulted in {response.StatusCode.ToString()} - {await response.Content.ReadAsStringAsync()}");
+                    }
+                }
+                
+                if (region is UpdateRegionRequest updateRegionRequest)
+                {
+                    var response = await italyGeoApi.UpdateRegionAsync(updateRegionRequest.Id, updateRegionRequest);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        logger.Error($"UPDATE of region {updateRegionRequest.Name} resulted in {response.StatusCode.ToString()} - { await response.Content.ReadAsStringAsync()}");
+                    }
+                }
+            });
+
+            /*ProvinceManipulator provinceManipulator = new(wikipediaApi, italianCitProTraApi);
             var provincesHtml = await wikipediaApi.GetPageHtmlAsync(WikiHelper.ProvincesOfItalyPagePath);
             var provincesToAdd = await provinceManipulator.ParseHtmlAsync(provincesHtml);
             List<Task> TasksProvincesToAdd = [];
             foreach (var province in provincesToAdd) TasksProvincesToAdd.Add(italianCitProTraApi.CreateProvinceAsync(province));
             await Task.WhenAll(TasksProvincesToAdd);*/
 
-            ComuneManipulator comuneManipulator = new(wikipediaApi, italyGeoApi, logger);
+            /*ComuneManipulator comuneManipulator = new(wikipediaApi, italyGeoApi, logger);
             var comunesHtml = await wikipediaApi.GetPageHtmlAsync(WikiHelper.ComunesOfItalyPagePath);
 
             await foreach (var listComunesByLetter in comuneManipulator.ParseHtmlAsync(comunesHtml))
@@ -54,7 +74,7 @@ class Program
                         logger.Error($"Insert of comune {comuneByLetter.Name} resulted in {response.StatusCode.ToString()} - Msg: {await response.Content.ReadAsStringAsync()}");
                     }
                 });
-            }
+            }*/
 
             Log.CloseAndFlush();
         }

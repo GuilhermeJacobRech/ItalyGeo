@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region;
 using WikiDataExtractor.Helpers;
 using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region;
 using WikiDataExtractor.Services;
@@ -16,7 +17,7 @@ namespace WikiDataExtractor.Manipulators
             this._italyGeoApi = italyGeoApi;
         }
 
-        public async Task<List<AddRegionRequest>> ParseHtmlAsync(string html)
+        public async Task<List<IRegionRequest>> ParseHtmlAsync(string html)
         {
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(html);
@@ -29,7 +30,7 @@ namespace WikiDataExtractor.Manipulators
             // Skip header
             var tableRows = table.SelectNodes(".//tr").Skip(1);
 
-            var regionsToAdd = new List<AddRegionRequest>();
+            var regionsToProcess = new List<IRegionRequest>();
 
             // For each region
             foreach (var row in tableRows)
@@ -44,10 +45,6 @@ namespace WikiDataExtractor.Manipulators
                 var node0ba = tdNodes.ElementAt(0).SelectSingleNode("b/a");
                 string wikiPagePath = StringHelper.SanitizeString(node0ba.Attributes["href"].Value, false, true);
                 string name = StringHelper.SanitizeString(node0ba.Attributes["title"].Value, false, true);
-
-                // Check if region already exists
-                var regionResponse = await _italyGeoApi.GetRegionByWikiPagePathAsync(wikiPagePath);
-                if (regionResponse != null) continue;
 
                 // Node that contains Wikipedia page path of Capaluogo of this Region
                 var node1a = tdNodes.ElementAt(1).SelectSingleNode("a");
@@ -78,20 +75,41 @@ namespace WikiDataExtractor.Manipulators
                 // Get Region summary
                 var regionSummary = await _wikipediaApi.GetPageSummaryAsync(wikiPagePath) ?? new();
 
-                regionsToAdd.Add(new AddRegionRequest
+                // Check if region already exists
+                var regionResponse = await _italyGeoApi.GetRegionByWikiPagePathAsync(wikiPagePath);
+                if (regionResponse != null)
                 {
-                    Name = name,
-                    WikipediaPagePath = wikiPagePath,
-                    Latitude = regionSummary.Coordinate.Latitude,
-                    Longitude = regionSummary.Coordinate.Longitude,
-                    Population = population,
-                    Areakm2 = areaKm2,
-                    InhabitantsPerKm2 = inhabKm2,
-                    ProvinceCount = provinceCount,
-                    ComuneCount = comuneCount
-                });
+                    regionsToProcess.Add(new UpdateRegionRequest
+                    {
+                        Id = regionResponse.Id,
+                        Name = name,
+                        WikipediaPagePath = wikiPagePath,
+                        Latitude = regionSummary.Coordinate.Latitude,
+                        Longitude = regionSummary.Coordinate.Longitude,
+                        Population = population,
+                        Areakm2 = areaKm2,
+                        InhabitantsPerKm2 = inhabKm2,
+                        ProvinceCount = provinceCount,
+                        ComuneCount = comuneCount
+                    });
+                }
+                else
+                {
+                    regionsToProcess.Add(new AddRegionRequest
+                    {
+                        Name = name,
+                        WikipediaPagePath = wikiPagePath,
+                        Latitude = regionSummary.Coordinate.Latitude,
+                        Longitude = regionSummary.Coordinate.Longitude,
+                        Population = population,
+                        Areakm2 = areaKm2,
+                        InhabitantsPerKm2 = inhabKm2,
+                        ProvinceCount = provinceCount,
+                        ComuneCount = comuneCount
+                    });
+                }
             }
-            return regionsToAdd;
+            return regionsToProcess;
         }
     }
 }
