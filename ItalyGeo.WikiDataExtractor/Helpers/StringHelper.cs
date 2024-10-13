@@ -1,4 +1,7 @@
 ﻿using HtmlAgilityPack;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -12,14 +15,44 @@ namespace WikiDataExtractor.Helpers
 {
     public class StringHelper
     {
-        public static string SanitizeString(string s)
+        public static string SanitizeString(string s, bool keepNumbers, bool keepChars)
         {
             s = s.Replace("\n", string.Empty);
             s = s.Replace("\r", string.Empty);
             s = s.Replace("\t", string.Empty);
             s = s.Trim();
-            Regex regex = new Regex(@"[^\p{L}\s-_()']");
-            return regex.Replace(s, string.Empty);
+
+            string pattern;
+
+            if (keepNumbers && !keepChars)
+            {
+                // Keep only numbers, commas, and dots if keepNumbers is true and keepChars is false
+                pattern = @"[^0-9,.]";
+                s = Regex.Replace(s, pattern, "");
+
+                // Remove trailing comma or dot if it exists
+                s = Regex.Replace(s, "[.,]+$", "");
+            }
+            else if (!keepNumbers && keepChars)
+            {
+                // Keep only letters, spaces, and specific characters if keepNumbers is false and keepChars is true
+                pattern = @"[^\p{L}\s-_()']";
+                s = Regex.Replace(s, pattern, "");
+            }
+            else if (keepNumbers && keepChars)
+            {
+                // Keep letters, numbers, spaces, and specific characters if both keepNumbers and keepChars are true
+                pattern = @"[^\p{L}\d\s-_()'+]";
+                s = Regex.Replace(s, pattern, "");
+            }
+            else
+            {
+                // Remove both numbers and letters, only keeping spaces and specific characters if both are false
+                pattern = @"[^\s-_()']";
+                s = Regex.Replace(s, pattern, "");
+            }
+
+            return s;
         }
 
         public static int ConvertToInt(string s)

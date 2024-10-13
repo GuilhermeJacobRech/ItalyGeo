@@ -51,13 +51,13 @@ namespace WikiDataExtractor.Manipulators
                 // Node that contains PageUrl and Name of current Province
                 var node0a = tdNodes.ElementAt(0).SelectSingleNode("a");
 
-                string provinceWikiPagePath = StringHelper.SanitizeString(node0a.Attributes["href"].Value);
-                string provinceName = StringHelper.SanitizeString(node0a.InnerText);
+                string provinceWikiPagePath = StringHelper.SanitizeString(node0a.Attributes["href"].Value, false, true);
+                string provinceName = StringHelper.SanitizeString(node0a.InnerText, false, true);
 
                 // Node that contains PageUrl of the Region that the current Province belongs to
                 var node2a = tdNodes.ElementAt(2).SelectSingleNode("a");
 
-                string regionWikiPagePath = StringHelper.SanitizeString(node2a.Attributes["href"].Value);
+                string regionWikiPagePath = StringHelper.SanitizeString(node2a.Attributes["href"].Value, false, true);
 
                 // Check if region exists
                 var regionResponse = await _italyGeoApi.GetRegionByWikiPagePathAsync(regionWikiPagePath);
@@ -69,7 +69,7 @@ namespace WikiDataExtractor.Manipulators
 
                 // Node that contains Province`s Acronym
                 var node1 = tdNodes.ElementAt(1);
-                var acronym = StringHelper.SanitizeString(node1.InnerText);
+                var acronym = StringHelper.SanitizeString(node1.InnerText, false, true);
 
                 // Node that contains Province`s population
                 var node3 = tdNodes.ElementAt(3);
