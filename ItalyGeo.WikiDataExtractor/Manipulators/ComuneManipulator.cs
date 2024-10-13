@@ -1,20 +1,8 @@
 ﻿using HtmlAgilityPack;
-using Microsoft.Extensions.Options;
-using Microsoft.VisualBasic;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using WikiDataExtractor.Helpers;
 using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Comune;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Province;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region;
 using WikiDataExtractor.Services;
 using Serilog;
-using System.ComponentModel.DataAnnotations;
 
 namespace WikiDataExtractor.Manipulators
 {
