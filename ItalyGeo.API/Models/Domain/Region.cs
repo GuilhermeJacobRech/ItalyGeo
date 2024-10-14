@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Routing.Constraints;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ItalyGeo.API.Models.Domain
@@ -22,5 +23,13 @@ namespace ItalyGeo.API.Models.Domain
         public int ComuneCount { get; set; }
 
         public int ProvinceCount { get; set; }
+        public float AltitudeAboveSea { get; set; }
+        public string ZipCode { get; set; }
+        public string Timezone { get; set; }
+        public string InhabitantName { get; set; }
+        public string PublicHoliday { get; set; }
+        public string PatronSaint { get; set; }
+        public float GDPNominalMlnEuro { get; set; }
+        public float GDPPerCapitaEuro { get; set; }
     }
 }
