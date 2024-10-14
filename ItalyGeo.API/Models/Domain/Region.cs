@@ -17,13 +17,13 @@ namespace ItalyGeo.API.Models.Domain
         public string WikipediaPagePath { get; set; }
 
         public int Population { get; set; }
-        public float Areakm2 { get; set; }
+        public float AreaKm2 { get; set; }
         public float InhabitantsPerKm2 { get; set; }
 
         public int ComuneCount { get; set; }
 
         public int ProvinceCount { get; set; }
-        public float AltitudeAboveSea { get; set; }
+        public float AltitudeAboveSeaMeterMSL { get; set; }
         public string ZipCode { get; set; }
         public string Timezone { get; set; }
         public string InhabitantName { get; set; }
