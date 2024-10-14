@@ -26,12 +26,16 @@ namespace WikiDataExtractor.Helpers
 
             if (keepNumbers && !keepChars)
             {
+                pattern = @"\[[^\]]*\]";
+                s = Regex.Replace(s, pattern, "");
+
                 // Keep only numbers, commas, and dots if keepNumbers is true and keepChars is false
                 pattern = @"[^0-9,.]";
                 s = Regex.Replace(s, pattern, "");
 
                 // Remove trailing comma or dot if it exists
                 s = Regex.Replace(s, "[.,]+$", "");
+
             }
             else if (!keepNumbers && keepChars)
             {
