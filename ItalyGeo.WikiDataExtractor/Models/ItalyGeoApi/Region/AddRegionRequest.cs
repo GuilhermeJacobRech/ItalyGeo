@@ -14,10 +14,19 @@ namespace WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
         public string WikipediaPagePath { get; set; }
+
         public int Population { get; set; }
         public float Areakm2 { get; set; }
         public float InhabitantsPerKm2 { get; set; }
+
         public int ComuneCount { get; set; }
+
         public int ProvinceCount { get; set; }
+        public float AltitudeAboveSeaMeterMSL { get; set; }
+        public string Timezone { get; set; }
+        public string InhabitantName { get; set; }
+        public string PatronSaint { get; set; }
+        public float GDPNominalMlnEuro { get; set; }
+        public float GDPPerCapitaEuro { get; set; }
     }
 }
