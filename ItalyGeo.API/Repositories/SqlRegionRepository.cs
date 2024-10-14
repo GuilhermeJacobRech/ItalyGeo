@@ -55,6 +55,17 @@ namespace ItalyGeo.API.Repositories
             existingRegion.Latitude = region.Latitude;
             existingRegion.Longitude = region.Longitude;
             existingRegion.WikipediaPagePath = region.WikipediaPagePath;
+            existingRegion.AltitudeAboveSeaMeterMSL = region.AltitudeAboveSeaMeterMSL;
+            existingRegion.AreaKm2 = region.AreaKm2;
+            existingRegion.ComuneCount = region.ComuneCount;
+            existingRegion.ProvinceCount = region.ProvinceCount;
+            existingRegion.GDPNominalMlnEuro = region.GDPNominalMlnEuro;
+            existingRegion.GDPPerCapitaEuro = region.GDPPerCapitaEuro;
+            existingRegion.InhabitantName = region.InhabitantName;
+            existingRegion.InhabitantsPerKm2 = region.InhabitantsPerKm2;
+            existingRegion.PatronSaint = region.PatronSaint;
+            existingRegion.Population = region.Population;
+            existingRegion.Timezone = region.Timezone;
 
             await _dbContext.SaveChangesAsync();
 

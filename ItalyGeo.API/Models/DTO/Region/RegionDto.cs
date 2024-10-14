@@ -15,5 +15,11 @@ namespace ItalyGeo.API.Models.DTO.Region
         public float InhabitantsPerKm2 { get; set; }
         public int ComuneCount { get; set; }
         public int ProvinceCount { get; set; }
+        public float AltitudeAboveSeaMeterMSL { get; set; }
+        public string Timezone { get; set; }
+        public string InhabitantName { get; set; }
+        public string? PatronSaint { get; set; }
+        public float GDPNominalMlnEuro { get; set; }
+        public float GDPPerCapitaEuro { get; set; }
     }
 }
