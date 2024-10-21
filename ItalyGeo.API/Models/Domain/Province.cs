@@ -29,8 +29,10 @@ namespace ItalyGeo.API.Models.Domain
         public DateTime YearCreated { get; set; }
         public float GDPNominalMlnEuro { get; set; }
         public float GDPPerCapitaEuro { get; set; }
+        public Guid? CapaluogoComuneId { get; set; }
 
         // Navigation properties
         public required Region Region { get; set; }
+        public Comune? CapaluogoComune { get; set; }
     }
 }

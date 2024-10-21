@@ -29,5 +29,9 @@ namespace ItalyGeo.API.Models.Domain
         public string? PatronSaint { get; set; }
         public float GDPNominalMlnEuro { get; set; }
         public float GDPPerCapitaEuro { get; set; }
+        public Guid? CapaluogoComuneId { get; set; }
+
+        // Navigation property
+        public Comune? CapaluogoComune { get; set; }
     }
 }

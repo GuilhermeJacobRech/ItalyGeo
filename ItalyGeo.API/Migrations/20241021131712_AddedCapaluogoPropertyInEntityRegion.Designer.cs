@@ -4,6 +4,7 @@ using ItalyGeo.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ItalyGeo.API.Migrations
 {
     [DbContext(typeof(ItalyGeoDbContext))]
-    partial class ItalyGeoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241021131712_AddedCapaluogoPropertyInEntityRegion")]
+    partial class AddedCapaluogoPropertyInEntityRegion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,27 @@ namespace ItalyGeo.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ItalyGeo.API.Models.Domain.Capaluogo", b =>
+                {
+                    b.Property<Guid>("ComuneId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ProvinceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RegionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ComuneId");
+
+                    b.HasIndex("ComuneId", "ProvinceId", "RegionId")
+                        .IsUnique()
+                        .HasFilter("[ProvinceId] IS NOT NULL AND [RegionId] IS NOT NULL");
+
+                    b.ToTable("Capaluogo");
+                });
 
             modelBuilder.Entity("ItalyGeo.API.Models.Domain.Comune", b =>
                 {
@@ -94,9 +118,6 @@ namespace ItalyGeo.API.Migrations
                     b.Property<float>("Areakm2")
                         .HasColumnType("real");
 
-                    b.Property<Guid?>("CapaluogoComuneId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("ComuneCount")
                         .HasColumnType("int");
 
@@ -139,8 +160,6 @@ namespace ItalyGeo.API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CapaluogoComuneId");
 
                     b.HasIndex("RegionId");
 
@@ -229,17 +248,11 @@ namespace ItalyGeo.API.Migrations
 
             modelBuilder.Entity("ItalyGeo.API.Models.Domain.Province", b =>
                 {
-                    b.HasOne("ItalyGeo.API.Models.Domain.Comune", "CapaluogoComune")
-                        .WithMany()
-                        .HasForeignKey("CapaluogoComuneId");
-
                     b.HasOne("ItalyGeo.API.Models.Domain.Region", "Region")
                         .WithMany()
                         .HasForeignKey("RegionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CapaluogoComune");
 
                     b.Navigation("Region");
                 });

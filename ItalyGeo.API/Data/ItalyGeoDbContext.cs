@@ -32,12 +32,19 @@ namespace ItalyGeo.API.Data
                     .HasIndex(e => e.WikipediaPagePath)
                     .IsUnique();
 
-            modelBuilder.Entity<Capaluogo>()
-                .HasKey(e => e.ComuneId);
+            // One-to-one relationship for the capital Comune in Region
+            modelBuilder.Entity<Region>()
+                .HasOne(r => r.CapaluogoComune) 
+                .WithMany()
+                .HasForeignKey(r => r.CapaluogoComuneId)
+                .IsRequired(false);
 
-            modelBuilder.Entity<Capaluogo>()
-                .HasIndex(e => new { e.ComuneId, e.ProvinceId, e.RegionId })
-                .IsUnique();  
+            // One-to-one relationship for the capital Comune in Province
+            modelBuilder.Entity<Province>()
+                .HasOne(r => r.CapaluogoComune)
+                .WithMany()
+                .HasForeignKey(r => r.CapaluogoComuneId)
+                .IsRequired(false);
         }
 
         public DbSet<Comune> Comunes { get; set; }
