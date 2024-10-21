@@ -9,6 +9,7 @@ namespace ItalyGeo.API.Models.DTO.Province
         public Guid RegionId { get; set; }
         [Required]
         public required string Name { get; set; }
+        public Guid? CapaluogoComuneId { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
         [Required]

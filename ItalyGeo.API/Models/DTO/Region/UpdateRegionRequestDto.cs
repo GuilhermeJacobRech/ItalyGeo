@@ -10,6 +10,7 @@ namespace ItalyGeo.API.Models.DTO.Region
         public decimal Longitude { get; set; }
         [Required]
         public string WikipediaPagePath { get; set; } = "";
+        public Guid? CapaluogoComuneId { get; set; }
         public int Population { get; set; }
         public float Areakm2 { get; set; }
         public float InhabitantsPerKm2 { get; set; }
