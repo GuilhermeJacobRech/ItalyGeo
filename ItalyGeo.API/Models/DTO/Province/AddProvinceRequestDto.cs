@@ -10,26 +10,21 @@ namespace ItalyGeo.API.Models.DTO.Province
         public Guid RegionId { get; set; }
         [Required]
         public string Name { get; set; }
-        [Required]
         public decimal Latitude { get; set; }
-        [Required]
         public decimal Longitude { get; set; }
         [Required]
         public string WikipediaPagePath { get; set; }
-        [Required]
-        public string Acronym { get; set; }
-        [Required]
+        public string? Acronym { get; set; }
         public int Population { get; set; }
-        [Required]
         public float Areakm2 { get; set; }
-        [Required]
         public float InhabitantsPerKm2 { get; set; }
-        [Required]
         public int ComuneCount { get; set; }
-        [Required]
-
+        public string? Zipcode { get; set; }
+        public string? Timezone { get; set; }
         [DataType(DataType.Date)]
-        public DateTime yearCreated { get; set; }
+        public DateTime YearCreated { get; set; }
+        public float GDPNominalMlnEuro { get; set; }
+        public float GDPPerCapitaEuro { get; set; }
 
         // Validate if RegionId exists (taken from https://stackoverflow.com/a/53089588/10691380) 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
