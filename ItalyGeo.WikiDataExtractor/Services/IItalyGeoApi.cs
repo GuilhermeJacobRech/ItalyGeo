@@ -1,4 +1,5 @@
-﻿using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region;
+﻿using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province;
+using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,7 @@ namespace WikiDataExtractor.Services
         Task<HttpResponseMessage> CreateRegionAsync(AddRegionRequest region);
         Task<HttpResponseMessage> UpdateRegionAsync(Guid id, UpdateRegionRequest region);
         Task<HttpResponseMessage> CreateProvinceAsync(AddProvinceRequest province);
+        Task<HttpResponseMessage> UpdateProvinceAsync(Guid id, UpdateProvinceRequest province);
         Task<HttpResponseMessage> CreateComuneAsync(AddComuneRequest comune);
     }
 }

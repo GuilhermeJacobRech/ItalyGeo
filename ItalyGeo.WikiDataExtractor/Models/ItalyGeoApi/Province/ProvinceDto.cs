@@ -1,31 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region
+namespace ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province
 {
-    public class UpdateRegionRequest : IRegionRequest
+    public class ProvinceDto
     {
-        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
         public string WikipediaPagePath { get; set; } = string.Empty;
-
-        public int Population { get; set; }
-        public float Areakm2 { get; set; }
-        public float InhabitantsPerKm2 { get; set; }
-
-        public int ComuneCount { get; set; }
-
-        public int ProvinceCount { get; set; }
         public string? Acronym { get; set; }
+        public int Population { get; set; }
+        public float AreaKm2 { get; set; }
+        public float InhabitantsPerKm2 { get; set; }
+        public int ComuneCount { get; set; }
+        public string? Zipcode { get; set; }
         public string? Timezone { get; set; }
-        public string? InhabitantName { get; set; }
-        public string? PatronSaint { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime yearCreated { get; set; }
         public float GDPNominalMlnEuro { get; set; }
         public float GDPPerCapitaEuro { get; set; }
     }
