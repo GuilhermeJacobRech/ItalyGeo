@@ -66,6 +66,16 @@ namespace ItalyGeo.API.Repositories
             existingProvince.Latitude = province.Latitude;
             existingProvince.Longitude = province.Longitude;
             existingProvince.WikipediaPagePath = province.WikipediaPagePath;
+            existingProvince.Acronym = province.Acronym;
+            existingProvince.Areakm2 = province.Areakm2;
+            existingProvince.YearCreated = province.YearCreated;
+            existingProvince.Zipcode = province.Zipcode;
+            existingProvince.GDPPerCapitaEuro = province.GDPPerCapitaEuro;
+            existingProvince.GDPNominalMlnEuro = province.GDPNominalMlnEuro;
+            existingProvince.ComuneCount = province.ComuneCount;
+            existingProvince.InhabitantsPerKm2 = province.InhabitantsPerKm2;
+            existingProvince.Population = province.Population;
+            existingProvince.Timezone = province.Timezone;
 
             await _dbContext.SaveChangesAsync();
 
