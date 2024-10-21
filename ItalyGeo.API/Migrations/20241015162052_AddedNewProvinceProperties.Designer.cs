@@ -4,6 +4,7 @@ using ItalyGeo.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ItalyGeo.API.Migrations
 {
     [DbContext(typeof(ItalyGeoDbContext))]
-    partial class ItalyGeoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241015162052_AddedNewProvinceProperties")]
+    partial class AddedNewProvinceProperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,6 +59,7 @@ namespace ItalyGeo.API.Migrations
                         .HasColumnType("real");
 
                     b.Property<string>("InhabitantName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<float>("InhabitantsPerKm2")
@@ -72,6 +76,7 @@ namespace ItalyGeo.API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PatronSaint")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Population")
@@ -81,9 +86,11 @@ namespace ItalyGeo.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PublicHoliday")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Timezone")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("WikipediaPagePath")
@@ -91,6 +98,7 @@ namespace ItalyGeo.API.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ZipCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -110,6 +118,7 @@ namespace ItalyGeo.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Acronym")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<float>("Areakm2")
@@ -144,6 +153,7 @@ namespace ItalyGeo.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Timezone")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("WikipediaPagePath")
@@ -154,6 +164,7 @@ namespace ItalyGeo.API.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Zipcode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -172,8 +183,8 @@ namespace ItalyGeo.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Acronym")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<float>("AltitudeAboveSeaMeterMSL")
+                        .HasColumnType("real");
 
                     b.Property<float>("AreaKm2")
                         .HasColumnType("real");
@@ -188,6 +199,7 @@ namespace ItalyGeo.API.Migrations
                         .HasColumnType("real");
 
                     b.Property<string>("InhabitantName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<float>("InhabitantsPerKm2")
@@ -213,6 +225,7 @@ namespace ItalyGeo.API.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Timezone")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("WikipediaPagePath")
