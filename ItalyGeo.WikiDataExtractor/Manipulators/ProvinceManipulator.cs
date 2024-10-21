@@ -1,22 +1,31 @@
 ﻿using HtmlAgilityPack;
+using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province;
+using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region;
+using Serilog;
+using System.Xml.Linq;
 using WikiDataExtractor.Helpers;
+using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Comune;
 using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Province;
+using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region;
 using WikiDataExtractor.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WikiDataExtractor.Manipulators
 {
     public class ProvinceManipulator
     {
-        private readonly IWikipediaApi _wikipediaApiService;
+        private readonly IWikipediaApi _wikipediaApi;
         private readonly IItalyGeoApi _italyGeoApi;
+        private readonly ILogger _logger;
 
-        public ProvinceManipulator(IWikipediaApi wikipediaApi, IItalyGeoApi italyGeoApi)
+        public ProvinceManipulator(IWikipediaApi wikipediaApi, IItalyGeoApi italyGeoApi, ILogger logger)
         {
-            _wikipediaApiService = wikipediaApi;
+            _wikipediaApi = wikipediaApi;
             _italyGeoApi = italyGeoApi;
+            _logger = logger;
         }
 
-        public async Task<List<AddProvinceRequest>> ParseHtmlAsync(string html)
+        public async Task<List<IProvinceRequest>> ParseHtmlAsync(string html)
         {
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(html);
@@ -27,81 +36,215 @@ namespace WikiDataExtractor.Manipulators
             var provincesTable = htmlDoc.DocumentNode.SelectSingleNode(xpath);
 
             // Table Rows, skip header
-            var trNodes = provincesTable.SelectNodes(".//tr").Skip(1);
+            var rows = provincesTable.SelectNodes(".//tr").Skip(1);
 
-            var provincesToAdd = new List<AddProvinceRequest>();
+            var provincesToProcess = new List<IProvinceRequest>();
 
             // For each table row in the HTML table that contains every Province in Italy
-            foreach (var tr in trNodes)
+            foreach (var row in rows)
             {
                 // Data cells in the current table row
-                var tdNodes = tr.SelectNodes(".//td");
+                var tdNodes = row.SelectNodes(".//td");
 
                 // End of table
                 if (tdNodes == null) break;
 
-                // Node that contains PageUrl and Name of current Province
+                // Node that contains Wikipedia Page URL and name of the Province
                 var node0a = tdNodes.ElementAt(0).SelectSingleNode("a");
-
                 string provinceWikiPagePath = StringHelper.SanitizeString(node0a.Attributes["href"].Value, false, true);
                 string provinceName = StringHelper.SanitizeString(node0a.InnerText, false, true);
 
-                // Node that contains PageUrl of the Region that the current Province belongs to
+                // Node that contains Wikipedia Page URL of the Region that the current Province belongs to
                 var node2a = tdNodes.ElementAt(2).SelectSingleNode("a");
-
                 string regionWikiPagePath = StringHelper.SanitizeString(node2a.Attributes["href"].Value, false, true);
 
                 // Check if region exists
                 var regionResponse = await _italyGeoApi.GetRegionByWikiPagePathAsync(regionWikiPagePath);
-                if (regionResponse == null) continue;
-
-                // Check if Province already exists
-                var provinceResponse = await _italyGeoApi.GetProvinceByWikiPagePathAsync(provinceWikiPagePath);
-                if (provinceResponse != null) continue;
-
-                // Node that contains Province`s Acronym
-                var node1 = tdNodes.ElementAt(1);
-                var acronym = StringHelper.SanitizeString(node1.InnerText, false, true);
-
-                // Node that contains Province`s population
-                var node3 = tdNodes.ElementAt(3);
-                int population = StringHelper.ConvertToInt(node3.InnerText);
-
-                // Node that contains Provinces's area in km2
-                var node4 = tdNodes.ElementAt(4);
-                float areaKm2 = StringHelper.ConvertToFloat(node4.InnerText);
-
-                // Node that contains Provinces's density (inhabitants/km2)
-                var node5 = tdNodes.ElementAt(5);
-                int inhabKm2 = StringHelper.ConvertToInt(node5.InnerText);
-
-                // Node that contains Provinces's Comune count
-                var node6 = tdNodes.ElementAt(6);
-                int comuneCount = StringHelper.ConvertToInt(node6.InnerText);
-
-                // Node that contains Provinces's year of creation
-                var node9 = tdNodes.ElementAt(9);
-                DateTime yearCreated = new DateTime(StringHelper.ConvertToInt(node9.InnerText), 1, 1);
-
-                // Get province summary
-                var provinceSummary = await _wikipediaApiService.GetPageSummaryAsync(provinceWikiPagePath) ?? new();
-
-                provincesToAdd.Add(new AddProvinceRequest
+                if (regionResponse == null)
                 {
-                    Name = provinceName,
-                    RegionId = regionResponse.Id,
-                    Latitude = provinceSummary.Coordinate.Latitude,
-                    Longitude = provinceSummary.Coordinate.Longitude,
-                    WikipediaPagePath = provinceWikiPagePath,
-                    Acronym = acronym,
-                    Areakm2 = areaKm2,
-                    ComuneCount = comuneCount,
-                    InhabitantsPerKm2 = inhabKm2,
-                    Population = population,
-                    yearCreated = yearCreated
-                });
+                    _logger.Error($"Could not found region {regionWikiPagePath} when trying to process province {provinceName}");
+                    continue;
+                }
+
+                // Get province on Italy Geo
+                var provinceResponse = await _italyGeoApi.GetProvinceByWikiPagePathAsync(provinceWikiPagePath);
+                ProvinceDto? provinceDto = await ParseProvinceWikiPage(provinceWikiPagePath);
+
+                if (provinceDto == null) continue;
+
+                if (provinceResponse != null && provinceDto != null)
+                {
+                    provincesToProcess.Add(new UpdateProvinceRequest
+                    {
+                        Id = provinceResponse.Id,
+                        RegionId = regionResponse.Id,
+                        Name = provinceName,
+                        WikipediaPagePath = provinceWikiPagePath,
+                        AreaKm2 = provinceDto.AreaKm2,
+                        ComuneCount = provinceDto.ComuneCount,
+                        GDPNominalMlnEuro = provinceDto.GDPNominalMlnEuro,
+                        GDPPerCapitaEuro = provinceDto.GDPPerCapitaEuro,
+                        InhabitantsPerKm2 = provinceDto.InhabitantsPerKm2,
+                        Latitude = provinceDto.Latitude,
+                        Longitude = provinceDto.Longitude,
+                        Population = provinceDto.Population,
+                        Timezone = provinceDto.Timezone,
+                        Acronym = provinceDto.Acronym,
+                        YearCreated = provinceDto.yearCreated,
+                        Zipcode = provinceDto.Zipcode
+                    });
+                }
+                if (provinceResponse == null && provinceDto != null)
+                {
+                    provincesToProcess.Add(new AddProvinceRequest
+                    {
+                        RegionId = regionResponse.Id,
+                        Name = provinceName,
+                        WikipediaPagePath = provinceWikiPagePath,
+                        AreaKm2 = provinceDto.AreaKm2,
+                        ComuneCount = provinceDto.ComuneCount,
+                        GDPNominalMlnEuro = provinceDto.GDPNominalMlnEuro,
+                        GDPPerCapitaEuro = provinceDto.GDPPerCapitaEuro,
+                        InhabitantsPerKm2 = provinceDto.InhabitantsPerKm2,
+                        Latitude = provinceDto.Latitude,
+                        Longitude = provinceDto.Longitude,
+                        Population = provinceDto.Population,
+                        Timezone = provinceDto.Timezone,
+                        Acronym = provinceDto.Acronym,
+                        YearCreated = provinceDto.yearCreated,
+                        Zipcode = provinceDto.Zipcode
+                    });
+                }
             }
-            return provincesToAdd;
+            return provincesToProcess;
+        }
+
+        private async Task<ProvinceDto?> ParseProvinceWikiPage(string provinceWikiPagePath)
+        {
+            var provinceWikiPageHTML = await _wikipediaApi.GetPageHtmlAsync(provinceWikiPagePath);
+            HtmlDocument htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(provinceWikiPageHTML);
+
+            string xpath = "html/body/section[1]/table/tbody/tr";
+            var infoboxTableRows = htmlDoc.DocumentNode.SelectNodes(xpath);
+            if (infoboxTableRows == null)
+            {
+                _logger.Error($"Could not find infobox - Province wiki page: {provinceWikiPagePath}");
+                return null;
+            }
+
+            var provinceToProcess = new ProvinceDto();
+
+            Parallel.ForEach(infoboxTableRows, new ParallelOptions() { MaxDegreeOfParallelism = 20 }, (tr, ct) =>
+            {
+                try
+                {
+                    // Check if current table row has a table header
+                    var th = tr.SelectSingleNode("th");
+                    if (th == null) return;
+
+                    // Check if the innerText of 'th' or its child 'a' contains words respective to each property in addComuneRequest
+                    string headerText = StringHelper.SanitizeString(th.InnerText, false, true).ToLower();
+                    var tha = th.SelectSingleNode("a");
+                    if (tha != null)
+                    {
+                        headerText += StringHelper.SanitizeString(tha.InnerText, false, true).ToLower();
+                    }
+
+                    string tdText = tr.SelectSingleNode("td")?.InnerText ?? "";
+
+                    if (headerText.Contains("targa"))
+                    {
+                        provinceToProcess.Acronym = StringHelper.SanitizeString(tdText, false, true);
+                        return;
+                    }
+
+                    if (headerText.Equals("cod postale") || headerText.Equals("cod postalecod postale"))
+                    {
+                        provinceToProcess.Zipcode = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
+                        return;
+                    }
+
+                    if (headerText.Contains("superficie"))
+                    {
+                        string s = StringHelper.SanitizeString(tdText, true, false);
+                        provinceToProcess.AreaKm2 = StringHelper.ConvertToFloat(s);
+                        return;
+                    }
+
+                    if (headerText.Equals("data di istituzione") || headerText.Equals("data di istituzionedata di istituzione"))
+                    {
+                        string s = StringHelper.SanitizeString(tdText, true, true);
+                        int? year = StringHelper.ExtractYear(s);
+                        provinceToProcess.yearCreated = new DateTime(year ?? 0001, 1, 1);
+                        return;
+                    }
+                    
+                    if (headerText.Contains("densità"))
+                    {
+                        string s = StringHelper.SanitizeString(tdText, true, false);
+                        provinceToProcess.InhabitantsPerKm2 = StringHelper.ConvertToFloat(s);
+                        return;
+                    }
+
+                    if (headerText.Equals("abitanti") || headerText.Equals("abitantiabitanti"))
+                    {
+                        string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").FirstChild.InnerText, true, false);
+                        provinceToProcess.Population = StringHelper.ConvertToInt(s);
+                        return;
+                    }
+
+                    if (headerText.Contains("fuso orario"))
+                    {
+                        provinceToProcess.Timezone = StringHelper.SanitizeString(tdText, true, true);
+                        return;
+                    }
+
+                    if (headerText.Contains("comuni"))
+                    {
+                        string s = StringHelper.SanitizeString(tdText, true, false);
+                        provinceToProcess.ComuneCount = StringHelper.ConvertToInt(s);
+                        return;
+                    }
+
+                    if (headerText.Contains("coordinate"))
+                    {
+                        float dataLat = StringHelper.ConvertToFloat(tr.SelectSingleNode("td")?.SelectSingleNode("a")?.Attributes["data-lat"].Value ?? "");
+                        float dataLon = StringHelper.ConvertToFloat(tr.SelectSingleNode("td")?.SelectSingleNode("a")?.Attributes["data-lon"].Value ?? "");
+
+                        provinceToProcess.Latitude = (decimal)dataLat;
+                        provinceToProcess.Longitude = (decimal)dataLon;
+
+                        return;
+                    }
+
+                    if (headerText.Equals("pil") || headerText.Equals("pilpil"))
+                    {
+                        string innerText = tdText;
+                        int index = innerText.IndexOf('€');
+                        innerText = innerText[0..index];
+                        string s = StringHelper.SanitizeString(innerText, true, false);
+                        provinceToProcess.GDPNominalMlnEuro = StringHelper.ConvertToFloat(s);
+                        return;
+                    }
+
+                    if (headerText.Contains("pil procapite"))
+                    {
+                        string innerText = tdText;
+                        int index = innerText.IndexOf('€');
+                        innerText = innerText[0..index];
+                        string s = StringHelper.SanitizeString(innerText, true, false);
+                        provinceToProcess.GDPPerCapitaEuro = StringHelper.ConvertToFloat(s);
+                        return;
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"Error: {e.Message} - Province wiki page: {provinceWikiPagePath}");
+                }
+            });
+
+            return provinceToProcess;
         }
     }
 }

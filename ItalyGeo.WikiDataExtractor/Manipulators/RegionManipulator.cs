@@ -5,6 +5,7 @@ using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Comune;
 using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region;
 using WikiDataExtractor.Services;
 using Serilog;
+using System;
 namespace WikiDataExtractor.Manipulators
 {
     public class RegionManipulator
@@ -31,12 +32,12 @@ namespace WikiDataExtractor.Manipulators
             var table = htmlDoc.DocumentNode.SelectSingleNode(xpath);
 
             // Skip header
-            var tableRows = table.SelectNodes(".//tr").Skip(1);
+            var rows = table.SelectNodes(".//tr").Skip(1);
 
             var regionsToProcess = new List<IRegionRequest>();
 
             // For each region
-            foreach (var row in tableRows)
+            foreach (var row in rows)
             {
                 // Data cells in the current table row
                 var tdNodes = row.SelectNodes(".//td");
@@ -46,12 +47,12 @@ namespace WikiDataExtractor.Manipulators
 
                 // Node that contains Region Wikipedia Page URL and Name
                 var node0ba = tdNodes.ElementAt(0).SelectSingleNode("b/a");
-                string wikiPagePath = StringHelper.SanitizeString(node0ba.Attributes["href"].Value, false, true);
-                string name = StringHelper.SanitizeString(node0ba.Attributes["title"].Value, false, true);
+                string regionWikiPagePath = StringHelper.SanitizeString(node0ba.Attributes["href"].Value, false, true);
+                string regionName = StringHelper.SanitizeString(node0ba.Attributes["title"].Value, false, true);
 
-                // Check if region already exists
-                var regionResponse = await _italyGeoApi.GetRegionByWikiPagePathAsync(wikiPagePath);
-                RegionDto? regionDto = await ParseRegionWikiPage(wikiPagePath);
+                // Get region on Italy Geo
+                var regionResponse = await _italyGeoApi.GetRegionByWikiPagePathAsync(regionWikiPagePath);
+                RegionDto? regionDto = await ParseRegionWikiPage(regionWikiPagePath);
                 if (regionDto == null) continue;
 
                 if (regionResponse != null && regionDto != null)
@@ -59,9 +60,8 @@ namespace WikiDataExtractor.Manipulators
                     regionsToProcess.Add(new UpdateRegionRequest
                     {
                         Id = regionResponse.Id,
-                        Name = name,
-                        WikipediaPagePath = wikiPagePath,
-                        AltitudeAboveSeaMeterMSL = regionDto.AltitudeAboveSeaMeterMSL,
+                        Name = regionName,
+                        WikipediaPagePath = regionWikiPagePath,
                         Areakm2 = regionDto.AreaKm2,
                         ComuneCount = regionDto.ComuneCount,
                         ProvinceCount = regionDto.ProvinceCount,
@@ -73,16 +73,16 @@ namespace WikiDataExtractor.Manipulators
                         Longitude = regionDto.Longitude,
                         PatronSaint = regionDto.PatronSaint,
                         Population = regionDto.Population,
-                        Timezone = regionDto.Timezone
+                        Timezone = regionDto.Timezone,
+                        Acronym = regionDto.Acronym
                     });
                 }
                 if (regionResponse == null && regionDto != null)
                 {
                     regionsToProcess.Add(new AddRegionRequest
                     {
-                        Name = name,
-                        WikipediaPagePath = wikiPagePath,
-                        AltitudeAboveSeaMeterMSL = regionDto.AltitudeAboveSeaMeterMSL,
+                        Name = regionName,
+                        WikipediaPagePath = regionWikiPagePath,
                         Areakm2 = regionDto.AreaKm2,
                         ComuneCount = regionDto.ComuneCount,
                         ProvinceCount = regionDto.ProvinceCount,
@@ -94,7 +94,8 @@ namespace WikiDataExtractor.Manipulators
                         Longitude = regionDto.Longitude,
                         PatronSaint = regionDto.PatronSaint,
                         Population = regionDto.Population,
-                        Timezone = regionDto.Timezone
+                        Timezone = regionDto.Timezone,
+                        Acronym = regionDto.Acronym
                     });
                 }
             }
@@ -133,24 +134,25 @@ namespace WikiDataExtractor.Manipulators
                         headerText += StringHelper.SanitizeString(tha.InnerText, false, true).ToLower();
                     }
 
-                    if (headerText.Contains("altitudine"))
-                    {
-                        string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, false);
-                        regionToProcess.AltitudeAboveSeaMeterMSL = StringHelper.ConvertToFloat(s);
-                        return;
-                    }
+                    string tdText = tr.SelectSingleNode("td")?.InnerText ?? "";
 
                     if (headerText.Contains("superficie"))
                     {
-                        string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, false);
+                        string s = StringHelper.SanitizeString(tdText, true, false);
                         regionToProcess.AreaKm2 = StringHelper.ConvertToFloat(s);
                         return;
                     }
 
                     if (headerText.Contains("densità"))
                     {
-                        string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, false);
+                        string s = StringHelper.SanitizeString(tdText, true, false);
                         regionToProcess.InhabitantsPerKm2 = StringHelper.ConvertToFloat(s);
+                        return;
+                    }
+
+                    if (headerText.Contains("targa"))
+                    {
+                        regionToProcess.Acronym = StringHelper.SanitizeString(tdText, false, true);
                         return;
                     }
 
@@ -163,33 +165,33 @@ namespace WikiDataExtractor.Manipulators
 
                     if (headerText.Contains("fuso orario"))
                     {
-                        regionToProcess.Timezone = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
+                        regionToProcess.Timezone = StringHelper.SanitizeString(tdText, true, true);
                         return;
                     }
 
                     if (headerText.Contains("patrono"))
                     {
-                        regionToProcess.PatronSaint = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, false, true);
+                        regionToProcess.PatronSaint = StringHelper.SanitizeString(tdText, false, true);
                         return;
                     }
 
                     if (headerText.Contains("comuni"))
                     {
-                        string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, false);
+                        string s = StringHelper.SanitizeString(tdText, true, false);
                         regionToProcess.ComuneCount = StringHelper.ConvertToInt(s);
                         return;
                     }
 
                     if (headerText.Contains("province"))
                     {
-                        int provinceCount = tr.SelectSingleNode("td").InnerText.Count(c => c == ',') + 1;
+                        int provinceCount = tdText.Count(c => c == ',') + 1;
                         regionToProcess.ProvinceCount = provinceCount;
                         return;
                     }
 
                     if (headerText.Equals("nome abitanti") || headerText.Equals("nome abitantinome abitanti"))
                     {
-                        regionToProcess.InhabitantName = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, false, true);
+                        regionToProcess.InhabitantName = StringHelper.SanitizeString(tdText, false, true);
                         return;
                     }
 
@@ -206,29 +208,31 @@ namespace WikiDataExtractor.Manipulators
 
                     if (headerText.Equals("pil") || headerText.Equals("pilpil"))
                     {
-                        string innerText = tr.SelectSingleNode("td").InnerText;
+                        string innerText = tdText;
                         int index = innerText.IndexOf('€');
                         innerText = innerText[0..index];
                         string s = StringHelper.SanitizeString(innerText, true, false);
+                        s = s.Replace(".", "");
                         regionToProcess.GDPNominalMlnEuro = StringHelper.ConvertToFloat(s);
                         return;
                     }
 
                     if (headerText.Contains("pil procapite"))
                     {
-                        string innerText = tr.SelectSingleNode("td").InnerText;
+                        string innerText = tdText;
                         int index = innerText.IndexOf('€');
                         innerText = innerText[0..index];
                         string s = StringHelper.SanitizeString(innerText, true, false);
+                        s = s.Replace(".", "");
                         regionToProcess.GDPPerCapitaEuro = StringHelper.ConvertToFloat(s);
                         return;
                     }
 
 
                 }
-                catch (NullReferenceException e)
+                catch (Exception e)
                 {
-                    _logger.Error($"Error: {e.Message} - Comune wiki page: {regionWikiPagePath}");
+                    _logger.Error($"Error: {e.Message} - Region wiki page: {regionWikiPagePath}");
                 }
             });
 
