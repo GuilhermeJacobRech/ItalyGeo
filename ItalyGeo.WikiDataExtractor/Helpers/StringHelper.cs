@@ -26,6 +26,10 @@ namespace WikiDataExtractor.Helpers
 
             if (keepNumbers && !keepChars)
             {
+
+                pattern = @"\([^)]*\)";
+                s = Regex.Replace(s, pattern, "");
+
                 pattern = @"\[[^\]]*\]";
                 s = Regex.Replace(s, pattern, "");
 
@@ -102,6 +106,20 @@ namespace WikiDataExtractor.Helpers
             {
                 return 0;
             }
+        }
+
+        public static int? ExtractYear(string input)
+        {
+            // Regex to find a standalone year or a year before a parenthesis
+            string pattern = @"\b(\d{4})(?!\s*\()";
+
+            Match match = Regex.Match(input, pattern);
+            if (match.Success && int.TryParse(match.Groups[1].Value, out int year))
+            {
+                return year;
+            }
+
+            return null; // Return null if no valid year is found
         }
     }
 }
