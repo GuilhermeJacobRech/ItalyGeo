@@ -171,7 +171,7 @@ namespace WikiDataExtractor.Manipulators
 
             var addComuneRequest = new AddComuneRequest();
 
-            await Parallel.ForEachAsync(infoboxTableRows, new ParallelOptions() { MaxDegreeOfParallelism = 20 }, async (tr, ct) =>
+            Parallel.ForEach(infoboxTableRows, new ParallelOptions() { MaxDegreeOfParallelism = 20 }, (tr, ct) =>
             {
                 try
                 {
@@ -261,97 +261,6 @@ namespace WikiDataExtractor.Manipulators
                     _logger.Error($"Error: {e.Message} - Comune wiki page: {comuneWikiPagePath}");
                 }
             });
-
-            /*foreach(var tr in infoboxTableRows)
-            {
-                try
-                {
-                    // Check if current table row has a table header
-                    var th = tr.SelectSingleNode("th");
-                    if (th == null) continue;
-
-                    // Check if the innerText of 'th' or its child 'a' contains words respective to each property in addComuneRequest
-                    string headerText = StringHelper.SanitizeString(th.InnerText, false, true).ToLower();
-                    var tha = th.SelectSingleNode("a");
-                    if (tha != null)
-                    {
-                        headerText += StringHelper.SanitizeString(tha.InnerText, false, true).ToLower();
-                    }
-
-                    if (headerText.Contains("postale"))
-                    {
-                        addComuneRequest.ZipCode = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, false);
-                        continue;
-                    }
-
-                    if (headerText.Contains("altitudine"))
-                    {
-                        string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, false);
-                        addComuneRequest.AltitudeAboveSea = StringHelper.ConvertToFloat(s);
-                        continue;
-                    }
-
-                    if (headerText.Contains("superficie"))
-                    {
-                        string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, false);
-                        addComuneRequest.AreaKm2 = StringHelper.ConvertToFloat(s);
-                        continue;
-                    }
-
-                    if (headerText.Contains("densità"))
-                    {
-                        string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, false);
-                        addComuneRequest.InhabitantsPerKm2 = StringHelper.ConvertToFloat(s);
-                        continue;
-                    }
-
-                    if (headerText.Contains("abitanti"))
-                    {
-                        string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").FirstChild.InnerText, true, false);
-                        addComuneRequest.Population = StringHelper.ConvertToInt(s);
-                        continue;
-                    }
-
-                    if (headerText.Contains("fuso orario"))
-                    {
-                        addComuneRequest.Timezone = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
-                        continue;
-                    }
-
-                    if (headerText.Contains("giorno festivo"))
-                    {
-                        addComuneRequest.PublicHoliday = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
-                        continue;
-                    }
-
-                    if (headerText.Contains("patrono"))
-                    {
-                        addComuneRequest.PatronSaint = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, false, true);
-                        continue;
-                    }
-
-                    if (headerText.Contains("nome abitanti"))
-                    {
-                        addComuneRequest.InhabitantName = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, false, true);
-                        continue;
-                    }
-
-                    if (headerText.Contains("coordinate"))
-                    {
-                        float dataLat = StringHelper.ConvertToFloat(tr.SelectSingleNode("td")?.SelectSingleNode("a")?.Attributes["data-lat"].Value ?? "");
-                        float dataLon = StringHelper.ConvertToFloat(tr.SelectSingleNode("td")?.SelectSingleNode("a")?.Attributes["data-lon"].Value ?? "");
-
-                        addComuneRequest.Latitude = (decimal)dataLat;
-                        addComuneRequest.Longitude = (decimal)dataLon;
-
-                        continue;
-                    }
-                }
-                catch (NullReferenceException e)
-                {
-                    _logger.Error($"Error: {e.Message} - Comune wiki page: {comuneWikiPagePath}");
-                }
-            }*/
 
             return addComuneRequest;
         }
