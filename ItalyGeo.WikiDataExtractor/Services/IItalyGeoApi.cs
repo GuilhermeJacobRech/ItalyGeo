@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Auth;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Comune;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Province;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region;
+using WikiDataExtractor.Models.ItalyGeo.Auth;
+using WikiDataExtractor.Models.ItalyGeo.Comune;
+using WikiDataExtractor.Models.ItalyGeo.Province;
+using WikiDataExtractor.Models.ItalyGeo.Region;
 
 namespace WikiDataExtractor.Services
 {

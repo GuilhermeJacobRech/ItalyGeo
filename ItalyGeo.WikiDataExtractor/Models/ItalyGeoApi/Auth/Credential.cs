@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Auth
+namespace WikiDataExtractor.Models.ItalyGeo.Auth
 {
     public class Credential
     {

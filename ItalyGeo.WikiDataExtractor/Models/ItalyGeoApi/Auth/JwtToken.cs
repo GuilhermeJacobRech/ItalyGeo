@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Auth
+namespace WikiDataExtractor.Models.ItalyGeo.Auth
 {
     public class JwtToken
     {

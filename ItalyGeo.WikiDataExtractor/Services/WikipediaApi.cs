@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region;
+using WikiDataExtractor.Models.ItalyGeo.Region;
 using WikiDataExtractor.Models.WikipediaApi;
 
 namespace WikiDataExtractor.Services

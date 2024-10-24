@@ -1,8 +1,7 @@
 ﻿using HtmlAgilityPack;
 using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region;
 using WikiDataExtractor.Helpers;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Comune;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region;
+using WikiDataExtractor.Models.ItalyGeo.Region;
 using WikiDataExtractor.Services;
 using Serilog;
 using System;
@@ -55,6 +54,9 @@ namespace WikiDataExtractor.Manipulators
                 RegionDto? regionDto = await ParseRegionWikiPage(regionWikiPagePath);
                 if (regionDto == null) continue;
 
+                // Get capaluogo id
+                var comuneResponse = await _italyGeoApi.GetComuneByWikiPagePathAsync(regionDto.CapaluogoWikiPagePath);
+
                 if (regionResponse != null && regionDto != null)
                 {
                     regionsToProcess.Add(new UpdateRegionRequest
@@ -74,7 +76,8 @@ namespace WikiDataExtractor.Manipulators
                         PatronSaint = regionDto.PatronSaint,
                         Population = regionDto.Population,
                         Timezone = regionDto.Timezone,
-                        Acronym = regionDto.Acronym
+                        Acronym = regionDto.Acronym,
+                        CapaluogoComuneId = comuneResponse?.Id
                     });
                 }
                 if (regionResponse == null && regionDto != null)
@@ -95,7 +98,8 @@ namespace WikiDataExtractor.Manipulators
                         PatronSaint = regionDto.PatronSaint,
                         Population = regionDto.Population,
                         Timezone = regionDto.Timezone,
-                        Acronym = regionDto.Acronym
+                        Acronym = regionDto.Acronym,
+                        CapaluogoComuneId = comuneResponse?.Id
                     });
                 }
             }
@@ -134,7 +138,8 @@ namespace WikiDataExtractor.Manipulators
                         headerText += StringHelper.SanitizeString(tha.InnerText, false, true).ToLower();
                     }
 
-                    string tdText = tr.SelectSingleNode("td")?.InnerText ?? "";
+                    var td = tr.SelectSingleNode("td");
+                    string tdText = td?.InnerText ?? "";
 
                     if (headerText.Contains("superficie"))
                     {
@@ -228,8 +233,15 @@ namespace WikiDataExtractor.Manipulators
                         return;
                     }
 
-
+                    if (headerText.Equals("capoluogo") || headerText.Equals("capoluogocapoluogo"))
+                    {
+                        var s = td?.SelectSingleNode("a").Attributes["href"].Value;
+                        string capaluogoWikiPagePath = StringHelper.SanitizeString(s ?? "", false, true);
+                        regionToProcess.CapaluogoWikiPagePath = capaluogoWikiPagePath;
+                        return;
+                    }
                 }
+
                 catch (Exception e)
                 {
                     _logger.Error($"Error: {e.Message} - Region wiki page: {regionWikiPagePath}");

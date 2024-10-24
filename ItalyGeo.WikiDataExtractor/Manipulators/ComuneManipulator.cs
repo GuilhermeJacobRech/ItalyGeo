@@ -1,6 +1,6 @@
 ﻿using HtmlAgilityPack;
 using WikiDataExtractor.Helpers;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Comune;
+using WikiDataExtractor.Models.ItalyGeo.Comune;
 using WikiDataExtractor.Services;
 using Serilog;
 

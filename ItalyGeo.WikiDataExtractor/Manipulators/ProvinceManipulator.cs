@@ -4,9 +4,9 @@ using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region;
 using Serilog;
 using System.Xml.Linq;
 using WikiDataExtractor.Helpers;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Comune;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Province;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region;
+using WikiDataExtractor.Models.ItalyGeo.Comune;
+using WikiDataExtractor.Models.ItalyGeo.Province;
+using WikiDataExtractor.Models.ItalyGeo.Region;
 using WikiDataExtractor.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 

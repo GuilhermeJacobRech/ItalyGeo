@@ -3,12 +3,13 @@ using Microsoft.Extensions.Hosting;
 using WikiDataExtractor.Services;
 using WikiDataExtractor.Manipulators;
 using WikiDataExtractor.Helpers;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Auth;
+using WikiDataExtractor.Models.ItalyGeo.Auth;
 using Serilog;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region;
+using WikiDataExtractor.Models.ItalyGeo.Region;
 using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region;
-using WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Province;
+using WikiDataExtractor.Models.ItalyGeo.Province;
 using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province;
+
 class Program
 {
     static async Task Main(string[] args)
@@ -60,7 +61,7 @@ class Program
                 }
             });
 
-            /*ProvinceManipulator provinceManipulator = new(wikipediaApi, italyGeoApi, logger);
+            ProvinceManipulator provinceManipulator = new(wikipediaApi, italyGeoApi, logger);
             var provincesHtml = await wikipediaApi.GetPageHtmlAsync(WikiHelper.ProvincesOfItalyPagePath);
             var provincesToProcess = await provinceManipulator.ParseHtmlAsync(provincesHtml);
 
@@ -83,7 +84,7 @@ class Program
                         logger.Error($"UPDATE of province {updateProvinceRequest.Name} resulted in {response.StatusCode.ToString()} - {await response.Content.ReadAsStringAsync()}");
                     }
                 }
-            });*/
+            });
 
             /*ComuneManipulator comuneManipulator = new(wikipediaApi, italyGeoApi, logger);
             var comunesHtml = await wikipediaApi.GetPageHtmlAsync(WikiHelper.ComunesOfItalyPagePath);

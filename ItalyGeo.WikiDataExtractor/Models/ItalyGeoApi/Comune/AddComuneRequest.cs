@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Comune
+namespace WikiDataExtractor.Models.ItalyGeo.Comune
 {
     public class AddComuneRequest
     {
