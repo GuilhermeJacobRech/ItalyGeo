@@ -37,14 +37,16 @@ namespace ItalyGeo.API.Data
                 .HasOne(r => r.CapaluogoComune) 
                 .WithMany()
                 .HasForeignKey(r => r.CapaluogoComuneId)
-                .IsRequired(false);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             // One-to-one relationship for the capital Comune in Province
             modelBuilder.Entity<Province>()
                 .HasOne(r => r.CapaluogoComune)
                 .WithMany()
                 .HasForeignKey(r => r.CapaluogoComuneId)
-                .IsRequired(false);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
 
         public DbSet<Comune> Comunes { get; set; }
