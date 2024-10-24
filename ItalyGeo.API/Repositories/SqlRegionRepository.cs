@@ -66,6 +66,7 @@ namespace ItalyGeo.API.Repositories
             existingRegion.Population = region.Population;
             existingRegion.Timezone = region.Timezone;
             existingRegion.Acronym = region.Acronym;
+            existingRegion.CapaluogoComuneId = region.CapaluogoComuneId;
 
             await _dbContext.SaveChangesAsync();
 
