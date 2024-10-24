@@ -14,6 +14,7 @@ namespace ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
         public string WikipediaPagePath { get; set; } = string.Empty;
+        public Guid? CapaluogoComuneId { get; set; }
 
         public int Population { get; set; }
         public float Areakm2 { get; set; }

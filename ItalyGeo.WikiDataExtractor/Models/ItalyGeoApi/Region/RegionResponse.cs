@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WikiDataExtractor.Models.ItalianCitizenshipTrackerApi.Region
+namespace WikiDataExtractor.Models.ItalyGeo.Region
 {
     public class RegionResponse
     {
