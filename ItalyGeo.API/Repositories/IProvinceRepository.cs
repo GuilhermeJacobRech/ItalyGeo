@@ -6,7 +6,7 @@ namespace ItalyGeo.API.Repositories
 {
     public interface IProvinceRepository
     {
-        Task<List<Province>> GetAllAsync(string? filterOn = null, string? filterQuery = null);
+        Task<List<Province>> GetAllAsync(string? filterOn = null, string? filterQuery = null, bool orderByDescending = false);
         Task<Province?> GetByIdAsync(Guid id);
         Task<Province?> GetByWikiPagePathAsync(string WikiPagePath);
         Task<Province> CreateAsync(Province province);

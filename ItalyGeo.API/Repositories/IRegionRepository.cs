@@ -4,7 +4,7 @@ namespace ItalyGeo.API.Repositories
 {
     public interface IRegionRepository
     {
-        Task<List<Region>> GetAllAsync(string? filterOn = null, string? filterQuery = null);
+        Task<List<Region>> GetAllAsync(string? filterOn = null, string? filterQuery = null, bool orderByDescending = false);
         Task<Region?> GetByIdAsync(Guid id);
         Task<Region?> GetByWikiPagePathAsync(string WikiPagePath);
         Task<Region> CreateAsync(Region region);

@@ -19,10 +19,10 @@ builder.Services.AddSwaggerGen();
 
 // Injects DbContext
 builder.Services.AddDbContext<ItalyGeoDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("ItalyGeoConnectionString")));
+options.UseSqlServer(builder.Configuration["ConnectionStrings:ItalyGeo:SqlServer"]));
 
 builder.Services.AddDbContext<ItalyGeoAuthDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("ItalyGeoAuthConnectionString")));
+options.UseSqlServer(builder.Configuration["ConnectionStrings:ItalyGeoAuth:SqlServer"]));
 
 builder.Services.AddScoped<IComuneRepository, SqlComuneRepository>();
 builder.Services.AddScoped<IProvinceRepository, SqlProvinceRepository>();
@@ -50,28 +50,17 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
+
 builder.Services.AddIdentityCore<IdentityUser>()
-    .AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>("ItalianComunes")
     .AddEntityFrameworkStores<ItalyGeoAuthDbContext>()
     .AddDefaultTokenProviders();
-
-/*builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequiredLength = 8;
-    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-});*/
 
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly",
         policy => policy.RequireClaim("Admin"));
 });
-
-
 
 
 builder.Services.AddSwaggerGen(options =>
@@ -98,14 +87,6 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:4200")
-                          .AllowAnyHeader()
-                          .AllowAnyMethod());
-});
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -121,5 +102,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.UseCors();
 app.Run();

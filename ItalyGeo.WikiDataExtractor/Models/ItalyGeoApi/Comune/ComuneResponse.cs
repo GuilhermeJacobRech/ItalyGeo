@@ -15,7 +15,7 @@ namespace WikiDataExtractor.Models.ItalyGeo.Comune
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
         public required string WikipediaPagePath { get; set; }
-        public float AltitudeAboveSea { get; set; }
+        public float AltitudeAboveSeaMeterMSL { get; set; }
         public float AreaKm2 { get; set; }
         public int Population { get; set; }
         public float InhabitantsPerKm2 { get; set; }

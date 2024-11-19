@@ -23,10 +23,10 @@ namespace ItalyGeo.API.Controllers
         }
 
         [HttpGet]
-        [EnableCors("AllowSpecificOrigin")]
-        public async Task<IActionResult> GetAllAsync([FromQuery] string? filterOn, [FromQuery] string? filterQuery)
+        public async Task<IActionResult> GetAllAsync([FromQuery] string? filterOn, [FromQuery] string? filterQuery, 
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000, [FromQuery] bool orderByDescending = false)
         {
-            var comunesDomain = await _comuneRepository.GetAllAsync(filterOn, filterQuery);
+            var comunesDomain = await _comuneRepository.GetAllAsync(filterOn, filterQuery, pageNumber, pageSize, orderByDescending);
             var comunesDto = _mapper.Map<List<ComuneDto>>(comunesDomain);
 
             // Return DTOs
@@ -56,7 +56,7 @@ namespace ItalyGeo.API.Controllers
         }
 
         [HttpPost]
-        //[Authorize(policy: "AdminOnly")]
+        [Authorize(policy: "AdminOnly")]
         public async Task<IActionResult> CreateAsync([FromBody] AddComuneRequestDto addComuneRequestDto)
         {
             if (ModelState.IsValid)

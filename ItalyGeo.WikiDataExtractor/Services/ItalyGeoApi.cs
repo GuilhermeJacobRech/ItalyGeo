@@ -1,4 +1,5 @@
-﻿using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province;
+﻿using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Comune;
+using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province;
 using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region;
 using Newtonsoft.Json;
 using System;
@@ -85,6 +86,9 @@ namespace WikiDataExtractor.Services
             return response;
         }
 
-        
+        public async Task<HttpResponseMessage> UpdateComuneAsync(Guid id, UpdateComuneRequest comune)
+        {
+            return await _httpClient.PutAsJsonAsync($"comunes/{id}", comune);
+        }
     }
 }

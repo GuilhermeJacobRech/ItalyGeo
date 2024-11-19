@@ -12,7 +12,7 @@ namespace WikiDataExtractor.Models.ItalyGeo.Province
     {
         public Guid Id { get; set; }
         public Guid RegionId { get; set; }
-        public string Name { get; set; }
-        public string WikipediaPagePath { get; set; }
+        public required string Name { get; set; }
+        public required string WikipediaPagePath { get; set; }
     }
 }

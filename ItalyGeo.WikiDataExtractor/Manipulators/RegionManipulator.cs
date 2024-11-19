@@ -235,6 +235,11 @@ namespace WikiDataExtractor.Manipulators
 
                     if (headerText.Equals("capoluogo") || headerText.Equals("capoluogocapoluogo"))
                     {
+                        if (regionWikiPagePath == "Emilia-Romagna")
+                        {
+                            regionToProcess.CapaluogoWikiPagePath = "Bologna";
+                            return;
+                        }
                         var s = td?.SelectSingleNode("a").Attributes["href"].Value;
                         string capaluogoWikiPagePath = StringHelper.SanitizeString(s ?? "", false, true);
                         regionToProcess.CapaluogoWikiPagePath = capaluogoWikiPagePath;

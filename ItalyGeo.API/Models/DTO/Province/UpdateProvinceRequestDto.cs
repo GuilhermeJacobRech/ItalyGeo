@@ -19,7 +19,7 @@ namespace ItalyGeo.API.Models.DTO.Province
         public float Areakm2 { get; set; }
         public float InhabitantsPerKm2 { get; set; }
         public int ComuneCount { get; set; }
-        public string? Zipcode { get; set; }
+        public string? ZipCode { get; set; }
         public string? Timezone { get; set; }
         [DataType(DataType.Date)]
         public DateTime YearCreated { get; set; }

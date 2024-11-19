@@ -135,7 +135,7 @@ namespace ItalyGeo.API.Migrations
                     b.Property<DateTime>("YearCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Zipcode")
+                    b.Property<string>("ZipCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

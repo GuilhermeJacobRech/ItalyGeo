@@ -13,12 +13,13 @@ namespace ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
         public string WikipediaPagePath { get; set; } = string.Empty;
+        public string CapaluogoWikiPagePath { get; set; } = string.Empty;
         public string? Acronym { get; set; }
         public int Population { get; set; }
         public float AreaKm2 { get; set; }
         public float InhabitantsPerKm2 { get; set; }
         public int ComuneCount { get; set; }
-        public string? Zipcode { get; set; }
+        public string? ZipCode { get; set; }
         public string? Timezone { get; set; }
 
         [DataType(DataType.Date)]

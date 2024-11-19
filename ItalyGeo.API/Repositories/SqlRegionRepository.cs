@@ -13,7 +13,7 @@ namespace ItalyGeo.API.Repositories
             this._dbContext = dbContext;
         }
 
-        public async Task<List<Region>> GetAllAsync(string? filterOn = null, string? filterQuery = null)
+        public async Task<List<Region>> GetAllAsync(string? filterOn = null, string? filterQuery = null, bool orderByDescending = false)
         {
             var regions = _dbContext.Regions.AsQueryable();
 
@@ -23,6 +23,16 @@ namespace ItalyGeo.API.Repositories
                 {
                     regions = regions.Where(x => x.Name.Contains(filterQuery));
                 }
+            }
+
+            // Sorting
+            if (orderByDescending == true)
+            {
+                regions = regions.OrderByDescending(x => x.Name);
+            }
+            else
+            {
+                regions = regions.OrderBy(x => x.Name);
             }
 
             return await regions.ToListAsync();

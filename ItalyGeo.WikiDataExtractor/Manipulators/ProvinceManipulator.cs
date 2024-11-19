@@ -62,7 +62,7 @@ namespace WikiDataExtractor.Manipulators
                 var regionResponse = await _italyGeoApi.GetRegionByWikiPagePathAsync(regionWikiPagePath);
                 if (regionResponse == null)
                 {
-                    _logger.Error($"Could not found region {regionWikiPagePath} when trying to process province {provinceName}");
+                    _logger.Error($"Could not found region {regionWikiPagePath} when trying to process province {provinceWikiPagePath}");
                     continue;
                 }
 
@@ -71,6 +71,9 @@ namespace WikiDataExtractor.Manipulators
                 ProvinceDto? provinceDto = await ParseProvinceWikiPage(provinceWikiPagePath);
 
                 if (provinceDto == null) continue;
+
+                // Get capaluogo id
+                var comuneResponse = await _italyGeoApi.GetComuneByWikiPagePathAsync(provinceDto.CapaluogoWikiPagePath);
 
                 if (provinceResponse != null && provinceDto != null)
                 {
@@ -91,7 +94,8 @@ namespace WikiDataExtractor.Manipulators
                         Timezone = provinceDto.Timezone,
                         Acronym = provinceDto.Acronym,
                         YearCreated = provinceDto.yearCreated,
-                        Zipcode = provinceDto.Zipcode
+                        ZipCode = provinceDto.ZipCode,
+                        CapaluogoComuneId = comuneResponse?.Id
                     });
                 }
                 if (provinceResponse == null && provinceDto != null)
@@ -112,7 +116,8 @@ namespace WikiDataExtractor.Manipulators
                         Timezone = provinceDto.Timezone,
                         Acronym = provinceDto.Acronym,
                         YearCreated = provinceDto.yearCreated,
-                        Zipcode = provinceDto.Zipcode
+                        ZipCode = provinceDto.ZipCode,
+                        CapaluogoComuneId = comuneResponse?.Id
                     });
                 }
             }
@@ -151,7 +156,8 @@ namespace WikiDataExtractor.Manipulators
                         headerText += StringHelper.SanitizeString(tha.InnerText, false, true).ToLower();
                     }
 
-                    string tdText = tr.SelectSingleNode("td")?.InnerText ?? "";
+                    var td = tr.SelectSingleNode("td");
+                    string tdText = td?.InnerText ?? "";
 
                     if (headerText.Contains("targa"))
                     {
@@ -161,7 +167,7 @@ namespace WikiDataExtractor.Manipulators
 
                     if (headerText.Equals("cod postale") || headerText.Equals("cod postalecod postale"))
                     {
-                        provinceToProcess.Zipcode = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
+                        provinceToProcess.ZipCode = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
                         return;
                     }
 
@@ -235,6 +241,14 @@ namespace WikiDataExtractor.Manipulators
                         innerText = innerText[0..index];
                         string s = StringHelper.SanitizeString(innerText, true, false);
                         provinceToProcess.GDPPerCapitaEuro = StringHelper.ConvertToFloat(s);
+                        return;
+                    }
+
+                    if (headerText.Equals("capoluogo") || headerText.Equals("capoluogocapoluogo"))
+                    {
+                        var s = td?.SelectSingleNode("a").Attributes["href"].Value;
+                        string capaluogoWikiPagePath = StringHelper.SanitizeString(s ?? "", false, true);
+                        provinceToProcess.CapaluogoWikiPagePath = capaluogoWikiPagePath;
                         return;
                     }
                 }

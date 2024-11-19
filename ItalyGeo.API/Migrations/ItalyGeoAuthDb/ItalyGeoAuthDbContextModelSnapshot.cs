@@ -141,13 +141,13 @@ namespace ItalyGeo.API.Migrations.ItalyGeoAuthDb
                     b.HasData(
                         new
                         {
-                            Id = "E36F36B3-8A17-40C2-9C52-580864E6CB3B",
+                            Id = "0D6719C0-0E6B-433D-A8F6-145239C867F8",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "34f6cf45-bfa1-49d6-ad95-23eeb7e5119c",
+                            ConcurrencyStamp = "5903e8a0-d5dd-4c1e-9fdf-1e932a713e07",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAIAAYagAAAAEGsmBmrMvvLHyb6xOQpA15gloEhRFD5b4Iroez3mmrjoCjHGYyH+3oLg9MTsuUMBNA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKChqrsCBYOqOny0RC6xy48crjb9hQLqUlrSube9hRun59BMCV9ucUKfxf+PqXMeHQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -185,7 +185,7 @@ namespace ItalyGeo.API.Migrations.ItalyGeoAuthDb
                             Id = 1,
                             ClaimType = "Admin",
                             ClaimValue = "True",
-                            UserId = "E36F36B3-8A17-40C2-9C52-580864E6CB3B"
+                            UserId = "hQ40:)2%FMXw"
                         });
                 });
 

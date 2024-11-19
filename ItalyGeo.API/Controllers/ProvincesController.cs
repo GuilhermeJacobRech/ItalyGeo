@@ -23,9 +23,9 @@ namespace ItalyGeo.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync([FromQuery] string? filterOn, [FromQuery] string? filterQuery)
+        public async Task<IActionResult> GetAllAsync([FromQuery] string? filterOn, [FromQuery] string? filterQuery, [FromQuery] bool orderByDescending = false)
         {
-            var provincesDomain = await _provinceRepository.GetAllAsync(filterOn, filterQuery);
+            var provincesDomain = await _provinceRepository.GetAllAsync(filterOn, filterQuery, orderByDescending);
             var provincesDto = _mapper.Map<List<ProvinceDto>>(provincesDomain);
 
             // Return DTOs

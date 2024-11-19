@@ -1,15 +1,14 @@
-﻿using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Comune;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WikiDataExtractor.Models.ItalyGeo.Comune
+namespace ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Comune
 {
-    public class AddComuneRequest : IComuneRequest
+    public class UpdateComuneRequest : IComuneRequest
     {
+        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public Guid ProvinceId { get; set; }
         public decimal Latitude { get; set; }

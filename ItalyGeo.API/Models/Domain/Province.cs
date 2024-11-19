@@ -22,7 +22,7 @@ namespace ItalyGeo.API.Models.Domain
         public float InhabitantsPerKm2 { get; set; }
         public int ComuneCount { get; set; }
 
-        public string? Zipcode { get; set; }
+        public string? ZipCode { get; set; }
         public string? Timezone { get; set; }
 
         [DataType(DataType.Date)]

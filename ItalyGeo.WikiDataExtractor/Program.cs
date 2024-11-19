@@ -9,6 +9,8 @@ using WikiDataExtractor.Models.ItalyGeo.Region;
 using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Region;
 using WikiDataExtractor.Models.ItalyGeo.Province;
 using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province;
+using WikiDataExtractor.Models.ItalyGeo.Comune;
+using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Comune;
 
 class Program
 {
@@ -31,7 +33,7 @@ class Program
 
         if (await italyGeoApi.AuthenticateAsync(credential))
         {
-            RegionManipulator regionManipulator = new(wikipediaApi, italyGeoApi, logger);
+            /*RegionManipulator regionManipulator = new(wikipediaApi, italyGeoApi, logger);
             var regionsHtml = await wikipediaApi.GetPageHtmlAsync(WikiHelper.RegionsOfItalyPagePath);
             if (regionsHtml == null)
             {
@@ -84,23 +86,42 @@ class Program
                         logger.Error($"UPDATE of province {updateProvinceRequest.Name} resulted in {response.StatusCode.ToString()} - {await response.Content.ReadAsStringAsync()}");
                     }
                 }
-            });
+            });*/
 
-            /*ComuneManipulator comuneManipulator = new(wikipediaApi, italyGeoApi, logger);
+            ComuneManipulator comuneManipulator = new(wikipediaApi, italyGeoApi, logger);
             var comunesHtml = await wikipediaApi.GetPageHtmlAsync(WikiHelper.ComunesOfItalyPagePath);
 
             await foreach (var listComunesByLetter in comuneManipulator.ParseHtmlAsync(comunesHtml))
             {
-                Console.WriteLine("Insert executando!");
                 await Parallel.ForEachAsync(listComunesByLetter, new ParallelOptions() { MaxDegreeOfParallelism = 5 }, async (comuneByLetter, ct) =>
                 {
-                    var response = await italyGeoApi.CreateComuneAsync(comuneByLetter);
-                    if (!response.IsSuccessStatusCode)
+                    if (comuneByLetter is AddComuneRequest addComuneRequest)
                     {
-                        logger.Error($"Insert of comune {comuneByLetter.Name} resulted in {response.StatusCode.ToString()} - Msg: {await response.Content.ReadAsStringAsync()}");
+                        var response = await italyGeoApi.CreateComuneAsync(addComuneRequest);
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            logger.Error($"Insert of comune {addComuneRequest.Name} resulted in {response.StatusCode.ToString()} - Msg: {await response.Content.ReadAsStringAsync()}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{addComuneRequest.Name} inserted");
+                        }
+                    }
+
+                    if (comuneByLetter is UpdateComuneRequest updateComuneRequest)
+                    {
+                        var response = await italyGeoApi.UpdateComuneAsync(updateComuneRequest.Id, updateComuneRequest);
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            logger.Error($"Update of comune {updateComuneRequest.Name} resulted in {response.StatusCode.ToString()} - Msg: {await response.Content.ReadAsStringAsync()}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{updateComuneRequest.Name} updated");
+                        }
                     }
                 });
-            }*/
+            }
 
             Log.CloseAndFlush();
         }

@@ -7,8 +7,11 @@ namespace ItalyGeo.API.Data
 {
     public class ItalyGeoAuthDbContext : IdentityDbContext
     {
-        public ItalyGeoAuthDbContext(DbContextOptions<ItalyGeoAuthDbContext> dbContextOptions) : base(dbContextOptions)
+        private readonly IConfiguration _configuration;
+
+        public ItalyGeoAuthDbContext(DbContextOptions<ItalyGeoAuthDbContext> dbContextOptions, IConfiguration configuration) : base(dbContextOptions)
         {
+            _configuration = configuration;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -18,18 +21,17 @@ namespace ItalyGeo.API.Data
             var hasher = new PasswordHasher<IdentityUser>();
             modelBuilder.Entity<IdentityUser>().HasData(new IdentityUser
             {
-                Id = "E36F36B3-8A17-40C2-9C52-580864E6CB3B",
+                Id = _configuration["Admin:id"],
                 UserName = "admin",
                 NormalizedUserName = "admin",
-                PasswordHash = hasher.HashPassword(null, "password"),
+                PasswordHash = hasher.HashPassword(null, _configuration["Admin:password"]),
                 SecurityStamp = string.Empty,
             });
-
 
             modelBuilder.Entity<IdentityUserClaim<string>>().HasData(new IdentityUserClaim<string>
             {
                 Id = 1,
-                UserId = "E36F36B3-8A17-40C2-9C52-580864E6CB3B",
+                UserId = _configuration["Admin:password"],
                 ClaimType = "Admin",
                 ClaimValue = "True"
             });

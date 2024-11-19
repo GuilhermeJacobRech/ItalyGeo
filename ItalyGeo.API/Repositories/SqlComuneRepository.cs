@@ -12,7 +12,8 @@ namespace ItalyGeo.API.Repositories
             this._dbContext = dbContext;
         }
 
-        public async Task<List<Comune>> GetAllAsync(string? filterOn = null, string? filterQuery = null)
+        public async Task<List<Comune>> GetAllAsync(string? filterOn = null, string? filterQuery = null,
+            int pageNumber = 1, int pageSize = 1000, bool orderByDescending = false)
         {
             var comunes = _dbContext.Comunes.Include(x => x.Province).Include(x => x.Province.Region).AsQueryable();
 
@@ -35,12 +36,25 @@ namespace ItalyGeo.API.Repositories
                 }
             }
 
-            return await comunes.ToListAsync();
+            // Sorting
+            if (orderByDescending == true)
+            {
+                comunes = comunes.OrderByDescending(x => x.Name);
+            }
+            else
+            {
+                comunes = comunes.OrderBy(x => x.Name);
+            }
+
+            // Pagination
+            var skipResults = (pageNumber - 1) * pageSize;
+
+            return await comunes.Skip(skipResults).Take(pageSize).ToListAsync();
         }
 
         public async Task<Comune?> GetByIdAsync(Guid id)
         {
-            return await _dbContext.Comunes.Include("Region").FirstOrDefaultAsync(x => x.Id == id);
+            return await _dbContext.Comunes.Include("Province").FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Comune?> GetByWikiPagePathAsync(string WikiPagePath)
@@ -70,6 +84,15 @@ namespace ItalyGeo.API.Repositories
             existingComune.Latitude = comune.Latitude;
             existingComune.Longitude = comune.Longitude;
             existingComune.WikipediaPagePath = comune.WikipediaPagePath;
+            existingComune.AltitudeAboveSeaMeterMSL = comune.AltitudeAboveSeaMeterMSL;
+            existingComune.AreaKm2 = comune.AreaKm2;
+            existingComune.Population = comune.Population;
+            existingComune.InhabitantName = comune.InhabitantName;
+            existingComune.ZipCode = comune.ZipCode;
+            existingComune.Timezone = comune.Timezone;
+            existingComune.InhabitantsPerKm2 = comune.InhabitantsPerKm2;
+            existingComune.PatronSaint = comune.PatronSaint;
+            existingComune.PublicHoliday = comune.PublicHoliday;
 
             await _dbContext.SaveChangesAsync();
 

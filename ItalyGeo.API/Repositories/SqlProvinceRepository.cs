@@ -16,10 +16,11 @@ namespace ItalyGeo.API.Repositories
             this._dbContext = dbContext;
         }
 
-        public async Task<List<Province>> GetAllAsync(string? filterOn = null, string? filterQuery = null)
+        public async Task<List<Province>> GetAllAsync(string? filterOn = null, string? filterQuery = null, bool orderByDescending = false)
         {
             var provinces = _dbContext.Provinces.Include(x => x.Region).AsQueryable();
 
+            // Filtering by province name or region name
             if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterQuery) == false)
             {
                 if (filterOn.Equals("provincename", StringComparison.OrdinalIgnoreCase))
@@ -31,6 +32,16 @@ namespace ItalyGeo.API.Repositories
                 {
                     provinces = provinces.Where(x => x.Region.Name.Contains(filterQuery));
                 }
+            }
+
+            // Sorting
+            if (orderByDescending == true)
+            {
+                provinces = provinces.OrderByDescending(x => x.Name);
+            }
+            else
+            {
+                provinces = provinces.OrderBy(x => x.Name);
             }
 
             return await provinces.ToListAsync();
@@ -69,13 +80,14 @@ namespace ItalyGeo.API.Repositories
             existingProvince.Acronym = province.Acronym;
             existingProvince.Areakm2 = province.Areakm2;
             existingProvince.YearCreated = province.YearCreated;
-            existingProvince.Zipcode = province.Zipcode;
+            existingProvince.ZipCode = province.ZipCode;
             existingProvince.GDPPerCapitaEuro = province.GDPPerCapitaEuro;
             existingProvince.GDPNominalMlnEuro = province.GDPNominalMlnEuro;
             existingProvince.ComuneCount = province.ComuneCount;
             existingProvince.InhabitantsPerKm2 = province.InhabitantsPerKm2;
             existingProvince.Population = province.Population;
             existingProvince.Timezone = province.Timezone;
+            existingProvince.CapaluogoComuneId = province.CapaluogoComuneId;
 
             await _dbContext.SaveChangesAsync();
 

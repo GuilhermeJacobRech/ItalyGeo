@@ -3,6 +3,10 @@ using WikiDataExtractor.Helpers;
 using WikiDataExtractor.Models.ItalyGeo.Comune;
 using WikiDataExtractor.Services;
 using Serilog;
+using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Comune;
+using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province;
+using WikiDataExtractor.Models.ItalyGeo.Province;
+using WikiDataExtractor.Models.ItalyGeo.Region;
 
 namespace WikiDataExtractor.Manipulators
 {
@@ -21,7 +25,7 @@ namespace WikiDataExtractor.Manipulators
             this._logger = logger;
         }
 
-        public async IAsyncEnumerable<List<AddComuneRequest>> ParseHtmlAsync(string html)
+        public async IAsyncEnumerable<List<IComuneRequest>> ParseHtmlAsync(string html)
         {
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(html);
@@ -35,7 +39,6 @@ namespace WikiDataExtractor.Manipulators
 
             foreach (var li in listItems)
             {
-                Console.WriteLine("Parsing LI Executando!");
                 await foreach (var comunesByLetter in ParseListItemAsync(li))
                 {
                     yield return comunesByLetter;
@@ -43,7 +46,7 @@ namespace WikiDataExtractor.Manipulators
             }
         }
 
-        private async IAsyncEnumerable<List<AddComuneRequest>> ParseListItemAsync(HtmlNode li)
+        private async IAsyncEnumerable<List<IComuneRequest>> ParseListItemAsync(HtmlNode li)
         {
             var nodeA = li.SelectSingleNode("a");
             var comunesByLetterWikiPath = StringHelper.SanitizeString(nodeA.Attributes["href"].Value, false, true);
@@ -59,21 +62,30 @@ namespace WikiDataExtractor.Manipulators
             // Table Rows, skip header
             var trNodes = comunesByLetterTable.SelectNodes(".//tr").Skip(1);
 
-            var comunesToAdd = new List<AddComuneRequest>();
+            if (comunesByLetterWikiPath == "Comuni_d'Italia_(H-J)")
+            {
+                var trNodesI = htmlDoc.DocumentNode.SelectNodes(xpath).ElementAt(1).SelectNodes(".//tr").Skip(1);
+                var trNodesJ = htmlDoc.DocumentNode.SelectNodes(xpath).ElementAt(2).SelectNodes(".//tr").Skip(1);
+
+                trNodes = trNodes.Concat(trNodesI);
+                trNodes = trNodes.Concat(trNodesJ);
+            }
+
+            var comunesToProcess = new List<IComuneRequest>();
 
             await Parallel.ForEachAsync(trNodes, new ParallelOptions() { MaxDegreeOfParallelism = 20 }, async (tr, ct) =>
             {
-                var comuneToAdd = await ParseTableRowAsync(tr);
-                if (comuneToAdd != null) 
+                var comuneToProcess = await ParseTableRowAsync(tr);
+                if (comuneToProcess != null) 
                 {
-                    comunesToAdd.Add(comuneToAdd);
+                    comunesToProcess.Add(comuneToProcess);
                 } 
             });
 
-            yield return comunesToAdd;
+            yield return comunesToProcess;
         }
 
-        private async Task<AddComuneRequest?> ParseTableRowAsync(HtmlNode tr)
+        private async Task<IComuneRequest?> ParseTableRowAsync(HtmlNode tr)
         {
             // Data cells in the current table row
             var tdNodes = tr.SelectNodes(".//td");
@@ -95,13 +107,6 @@ namespace WikiDataExtractor.Manipulators
             // Node that contains Wikipedia page path of the Province that the current Comune belongs to
             var node1a = tdNodes.ElementAt(1).SelectSingleNode("a");
             string provinceWikiPagePath = StringHelper.SanitizeString(node1a.Attributes["href"].Value, false, true);
-
-            // Check if Comune already exists
-            var comuneResponse = await _italyGeoApi.GetComuneByWikiPagePathAsync(comuneWikiPagePath);
-            if (comuneResponse != null)
-            {
-                return null;
-            }
 
             // Check if Province exists
             var provinceResponse = await _italyGeoApi.GetProvinceByWikiPagePathAsync(provinceWikiPagePath);
@@ -137,7 +142,7 @@ namespace WikiDataExtractor.Manipulators
 
                                     if (provinceResponse == null)
                                     {
-                                        _logger.Error($"Could not find province - Comune name: {comuneName} - Prov wiki page: {provinceWikiPagePath}");
+                                        _logger.Error($"Could not found province {provinceWikiPagePath} when trying to process comune {comuneWikiPagePath}");
                                         return null;
                                     }
                                 }
@@ -147,15 +152,56 @@ namespace WikiDataExtractor.Manipulators
                 }
             }
 
-            var addComuneRequest = await ParseComuneWikiPage(comuneWikiPagePath);
-            addComuneRequest.Name = comuneName;
-            addComuneRequest.ProvinceId = provinceResponse.Id;
-            addComuneRequest.WikipediaPagePath = comuneWikiPagePath;
-            Console.WriteLine("Procesessed comune: " + comuneName);
-            return addComuneRequest;
+            // Get Comune on ItalyGeo
+            var comuneResponse = await _italyGeoApi.GetComuneByWikiPagePathAsync(comuneWikiPagePath);
+            ComuneDto? comuneDto = await ParseComuneWikiPage(comuneWikiPagePath);
+
+            if (comuneResponse != null && comuneDto != null)
+            {
+                return new UpdateComuneRequest
+                {
+                    Id = comuneResponse.Id,
+                    ProvinceId = provinceResponse.Id,
+                    Name = comuneName,
+                    WikipediaPagePath = comuneWikiPagePath,
+                    AreaKm2 = comuneDto.AreaKm2,
+                    InhabitantsPerKm2 = comuneDto.InhabitantsPerKm2,
+                    Latitude = comuneDto.Latitude,
+                    Longitude = comuneDto.Longitude,
+                    Population = comuneDto.Population,
+                    Timezone = comuneDto.Timezone,
+                    AltitudeAboveSeaMeterMSL = comuneDto.AltitudeAboveSeaMeterMSL,
+                    InhabitantName = comuneDto.InhabitantName,
+                    PatronSaint = comuneDto.PatronSaint,
+                    PublicHoliday = comuneDto.PublicHoliday,
+                    ZipCode = comuneDto.ZipCode
+                };
+            }
+            if (comuneDto == null && comuneDto != null)
+            {
+                return new AddComuneRequest
+                {
+                    ProvinceId = provinceResponse.Id,
+                    Name = comuneName,
+                    WikipediaPagePath = comuneWikiPagePath,
+                    AreaKm2 = comuneDto.AreaKm2,
+                    InhabitantsPerKm2 = comuneDto.InhabitantsPerKm2,
+                    Latitude = comuneDto.Latitude,
+                    Longitude = comuneDto.Longitude,
+                    Population = comuneDto.Population,
+                    Timezone = comuneDto.Timezone,
+                    AltitudeAboveSeaMeterMSL = comuneDto.AltitudeAboveSeaMeterMSL,
+                    InhabitantName = comuneDto.InhabitantName,
+                    PatronSaint = comuneDto.PatronSaint,
+                    PublicHoliday = comuneDto.PublicHoliday,
+                    ZipCode = comuneDto.ZipCode
+                };
+            }
+
+            return null;
         }
 
-        private async Task<AddComuneRequest?> ParseComuneWikiPage(string comuneWikiPagePath)
+        private async Task<ComuneDto?> ParseComuneWikiPage(string comuneWikiPagePath)
         {
             var comuneWikiPageHTML = await _wikipediaApi.GetPageHtmlAsync(comuneWikiPagePath);
             HtmlDocument htmlDoc = new HtmlDocument();
@@ -169,7 +215,7 @@ namespace WikiDataExtractor.Manipulators
                 return null;
             }
 
-            var addComuneRequest = new AddComuneRequest();
+            var comuneToProcess = new ComuneDto();
 
             Parallel.ForEach(infoboxTableRows, new ParallelOptions() { MaxDegreeOfParallelism = 20 }, (tr, ct) =>
             {
@@ -189,59 +235,59 @@ namespace WikiDataExtractor.Manipulators
 
                     if (headerText.Equals("cod postale") || headerText.Equals("cod postalecod postale"))
                     {
-                        addComuneRequest.ZipCode = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
+                        comuneToProcess.ZipCode = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
                         return;
                     }
 
                     if (headerText.Contains("altitudine"))
                     {
                         string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, false);
-                        addComuneRequest.AltitudeAboveSea = StringHelper.ConvertToFloat(s);
+                        comuneToProcess.AltitudeAboveSeaMeterMSL = StringHelper.ConvertToFloat(s);
                         return;
                     }
 
                     if (headerText.Contains("superficie"))
                     {
                         string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, false);
-                        addComuneRequest.AreaKm2 = StringHelper.ConvertToFloat(s);
+                        comuneToProcess.AreaKm2 = StringHelper.ConvertToFloat(s);
                         return;
                     }
 
                     if (headerText.Contains("densità"))
                     {
                         string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, false);
-                        addComuneRequest.InhabitantsPerKm2 = StringHelper.ConvertToFloat(s);
+                        comuneToProcess.InhabitantsPerKm2 = StringHelper.ConvertToFloat(s);
                         return;
                     }
 
                     if (headerText.Equals("abitanti") || headerText.Equals("abitantiabitanti"))
                     {
                         string s = StringHelper.SanitizeString(tr.SelectSingleNode("td").FirstChild.InnerText, true, false);
-                        addComuneRequest.Population = StringHelper.ConvertToInt(s);
+                        comuneToProcess.Population = StringHelper.ConvertToInt(s);
                         return;
                     }
 
                     if (headerText.Contains("fuso orario"))
                     {
-                        addComuneRequest.Timezone = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
+                        comuneToProcess.Timezone = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
                         return;
                     }
 
                     if (headerText.Contains("giorno festivo"))
                     {
-                        addComuneRequest.PublicHoliday = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
+                        comuneToProcess.PublicHoliday = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
                         return;
                     }
 
                     if (headerText.Contains("patrono"))
                     {
-                        addComuneRequest.PatronSaint = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, false, true);
+                        comuneToProcess.PatronSaint = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, false, true);
                         return;
                     }
 
                     if (headerText.Equals("nome abitanti") || headerText.Equals("nome abitantinome abitanti"))
                     {
-                        addComuneRequest.InhabitantName = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, false, true);
+                        comuneToProcess.InhabitantName = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, false, true);
                         return;
                     }
 
@@ -250,8 +296,8 @@ namespace WikiDataExtractor.Manipulators
                         float dataLat = StringHelper.ConvertToFloat(tr.SelectSingleNode("td")?.SelectSingleNode("a")?.Attributes["data-lat"].Value ?? "");
                         float dataLon = StringHelper.ConvertToFloat(tr.SelectSingleNode("td")?.SelectSingleNode("a")?.Attributes["data-lon"].Value ?? "");
 
-                        addComuneRequest.Latitude = (decimal)dataLat;
-                        addComuneRequest.Longitude = (decimal)dataLon;
+                        comuneToProcess.Latitude = (decimal)dataLat;
+                        comuneToProcess.Longitude = (decimal)dataLon;
 
                         return;
                     }
@@ -262,7 +308,7 @@ namespace WikiDataExtractor.Manipulators
                 }
             });
 
-            return addComuneRequest;
+            return comuneToProcess;
         }
     }
 }

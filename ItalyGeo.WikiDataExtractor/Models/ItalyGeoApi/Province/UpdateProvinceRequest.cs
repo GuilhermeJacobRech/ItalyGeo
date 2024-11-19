@@ -10,8 +10,9 @@ namespace ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province
     public class UpdateProvinceRequest : IProvinceRequest
     {
         public Guid Id { get; set; }
-        public required string WikipediaPagePath { get; set; }
-        public required string Name { get; set; }
+        public string WikipediaPagePath { get; set; } = string.Empty;
+        public Guid? CapaluogoComuneId { get; set; }
+        public string Name { get; set; } = string.Empty;
         public Guid RegionId { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
@@ -20,7 +21,7 @@ namespace ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province
         public float AreaKm2 { get; set; }
         public float InhabitantsPerKm2 { get; set; }
         public int ComuneCount { get; set; }
-        public string? Zipcode { get; set; }
+        public string? ZipCode { get; set; }
         public string? Timezone { get; set; }
 
         [DataType(DataType.Date)]
