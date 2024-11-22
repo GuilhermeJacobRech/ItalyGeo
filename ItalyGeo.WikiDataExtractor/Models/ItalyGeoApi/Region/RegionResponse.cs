@@ -10,7 +10,5 @@ namespace WikiDataExtractor.Models.ItalyGeo.Region
     public class RegionResponse
     {
         public Guid Id { get; set; }
-        public required string Name { get; set; }
-        public required string WikipediaPagePath { get; set; }
     }
 }

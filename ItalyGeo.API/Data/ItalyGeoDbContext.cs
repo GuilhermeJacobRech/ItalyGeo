@@ -1,4 +1,6 @@
 ﻿using ItalyGeo.API.Models.Domain;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Serilog;
@@ -7,10 +9,13 @@ using System.Xml;
 
 namespace ItalyGeo.API.Data
 {
-    public class ItalyGeoDbContext : DbContext
+    public class ItalyGeoDbContext : IdentityDbContext
     {
-        public ItalyGeoDbContext(DbContextOptions<ItalyGeoDbContext> dbContextOptions): base(dbContextOptions)
+        private readonly IConfiguration _configuration;
+
+        public ItalyGeoDbContext(DbContextOptions<ItalyGeoDbContext> dbContextOptions, IConfiguration configuration) : base(dbContextOptions)
         {
+            _configuration = configuration;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -47,6 +52,24 @@ namespace ItalyGeo.API.Data
                 .HasForeignKey(r => r.CapaluogoComuneId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.ClientSetNull);
+
+            var hasher = new PasswordHasher<IdentityUser>();
+            modelBuilder.Entity<IdentityUser>().HasData(new IdentityUser
+            {
+                Id = _configuration["Admin:id"],
+                UserName = "admin",
+                NormalizedUserName = "admin",
+                PasswordHash = hasher.HashPassword(null, _configuration["Admin:password"]),
+                SecurityStamp = string.Empty,
+            });
+
+            modelBuilder.Entity<IdentityUserClaim<string>>().HasData(new IdentityUserClaim<string>
+            {
+                Id = 1,
+                UserId = _configuration["Admin:id"],
+                ClaimType = "Admin",
+                ClaimValue = "True"
+            });
         }
 
         public DbSet<Comune> Comunes { get; set; }

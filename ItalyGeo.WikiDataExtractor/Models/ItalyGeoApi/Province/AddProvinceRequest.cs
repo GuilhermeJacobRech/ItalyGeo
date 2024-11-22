@@ -1,4 +1,5 @@
 ﻿using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -14,6 +15,7 @@ namespace WikiDataExtractor.Models.ItalyGeo.Province
         public string WikipediaPagePath { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public Guid RegionId { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Guid? CapaluogoComuneId { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }

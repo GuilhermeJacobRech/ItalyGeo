@@ -25,8 +25,6 @@ namespace ItalyGeo.API.Models.Domain
 
         public int ProvinceCount { get; set; }
         public string? Timezone { get; set; }
-        public string? InhabitantName { get; set; }
-        public string? PatronSaint { get; set; }
         public float GDPNominalMlnEuro { get; set; }
         public float GDPPerCapitaEuro { get; set; }
         public Guid? CapaluogoComuneId { get; set; }

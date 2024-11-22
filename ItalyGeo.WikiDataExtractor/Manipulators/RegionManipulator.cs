@@ -69,11 +69,9 @@ namespace WikiDataExtractor.Manipulators
                         ProvinceCount = regionDto.ProvinceCount,
                         GDPNominalMlnEuro = regionDto.GDPNominalMlnEuro,
                         GDPPerCapitaEuro = regionDto.GDPPerCapitaEuro,
-                        InhabitantName = regionDto.InhabitantName,
                         InhabitantsPerKm2 = regionDto.InhabitantsPerKm2,
                         Latitude = regionDto.Latitude,
                         Longitude = regionDto.Longitude,
-                        PatronSaint = regionDto.PatronSaint,
                         Population = regionDto.Population,
                         Timezone = regionDto.Timezone,
                         Acronym = regionDto.Acronym,
@@ -91,11 +89,9 @@ namespace WikiDataExtractor.Manipulators
                         ProvinceCount = regionDto.ProvinceCount,
                         GDPNominalMlnEuro = regionDto.GDPNominalMlnEuro,
                         GDPPerCapitaEuro = regionDto.GDPPerCapitaEuro,
-                        InhabitantName = regionDto.InhabitantName,
                         InhabitantsPerKm2 = regionDto.InhabitantsPerKm2,
                         Latitude = regionDto.Latitude,
                         Longitude = regionDto.Longitude,
-                        PatronSaint = regionDto.PatronSaint,
                         Population = regionDto.Population,
                         Timezone = regionDto.Timezone,
                         Acronym = regionDto.Acronym,
@@ -174,11 +170,6 @@ namespace WikiDataExtractor.Manipulators
                         return;
                     }
 
-                    if (headerText.Contains("patrono"))
-                    {
-                        regionToProcess.PatronSaint = StringHelper.SanitizeString(tdText, false, true);
-                        return;
-                    }
 
                     if (headerText.Contains("comuni"))
                     {
@@ -191,12 +182,6 @@ namespace WikiDataExtractor.Manipulators
                     {
                         int provinceCount = tdText.Count(c => c == ',') + 1;
                         regionToProcess.ProvinceCount = provinceCount;
-                        return;
-                    }
-
-                    if (headerText.Equals("nome abitanti") || headerText.Equals("nome abitantinome abitanti"))
-                    {
-                        regionToProcess.InhabitantName = StringHelper.SanitizeString(tdText, false, true);
                         return;
                     }
 

@@ -87,12 +87,9 @@ namespace ItalyGeo.API.Repositories
             existingComune.AltitudeAboveSeaMeterMSL = comune.AltitudeAboveSeaMeterMSL;
             existingComune.AreaKm2 = comune.AreaKm2;
             existingComune.Population = comune.Population;
-            existingComune.InhabitantName = comune.InhabitantName;
             existingComune.ZipCode = comune.ZipCode;
             existingComune.Timezone = comune.Timezone;
             existingComune.InhabitantsPerKm2 = comune.InhabitantsPerKm2;
-            existingComune.PatronSaint = comune.PatronSaint;
-            existingComune.PublicHoliday = comune.PublicHoliday;
 
             await _dbContext.SaveChangesAsync();
 

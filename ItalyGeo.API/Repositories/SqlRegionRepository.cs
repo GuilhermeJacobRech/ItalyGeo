@@ -70,9 +70,7 @@ namespace ItalyGeo.API.Repositories
             existingRegion.ProvinceCount = region.ProvinceCount;
             existingRegion.GDPNominalMlnEuro = region.GDPNominalMlnEuro;
             existingRegion.GDPPerCapitaEuro = region.GDPPerCapitaEuro;
-            existingRegion.InhabitantName = region.InhabitantName;
             existingRegion.InhabitantsPerKm2 = region.InhabitantsPerKm2;
-            existingRegion.PatronSaint = region.PatronSaint;
             existingRegion.Population = region.Population;
             existingRegion.Timezone = region.Timezone;
             existingRegion.Acronym = region.Acronym;

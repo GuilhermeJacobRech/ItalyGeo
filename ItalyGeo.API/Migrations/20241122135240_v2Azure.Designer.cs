@@ -4,16 +4,19 @@ using ItalyGeo.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace ItalyGeo.API.Migrations.ItalyGeoAuthDb
+namespace ItalyGeo.API.Migrations
 {
-    [DbContext(typeof(ItalyGeoAuthDbContext))]
-    partial class ItalyGeoAuthDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(ItalyGeoDbContext))]
+    [Migration("20241122135240_v2Azure")]
+    partial class v2Azure
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,185 @@ namespace ItalyGeo.API.Migrations.ItalyGeoAuthDb
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ItalyGeo.API.Models.Domain.Comune", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<float>("AltitudeAboveSeaMeterMSL")
+                        .HasColumnType("real");
+
+                    b.Property<float>("AreaKm2")
+                        .HasColumnType("real");
+
+                    b.Property<float>("InhabitantsPerKm2")
+                        .HasColumnType("real");
+
+                    b.Property<decimal>("Latitude")
+                        .HasColumnType("decimal(12, 9)");
+
+                    b.Property<decimal>("Longitude")
+                        .HasColumnType("decimal(12, 9)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Population")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ProvinceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Timezone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WikipediaPagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ZipCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProvinceId");
+
+                    b.HasIndex("WikipediaPagePath")
+                        .IsUnique();
+
+                    b.ToTable("Comunes");
+                });
+
+            modelBuilder.Entity("ItalyGeo.API.Models.Domain.Province", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Acronym")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Areakm2")
+                        .HasColumnType("real");
+
+                    b.Property<Guid?>("CapaluogoComuneId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ComuneCount")
+                        .HasColumnType("int");
+
+                    b.Property<float>("GDPNominalMlnEuro")
+                        .HasColumnType("real");
+
+                    b.Property<float>("GDPPerCapitaEuro")
+                        .HasColumnType("real");
+
+                    b.Property<float>("InhabitantsPerKm2")
+                        .HasColumnType("real");
+
+                    b.Property<decimal>("Latitude")
+                        .HasColumnType("decimal(12, 9)");
+
+                    b.Property<decimal>("Longitude")
+                        .HasColumnType("decimal(12, 9)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Population")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("RegionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Timezone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WikipediaPagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("YearCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ZipCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CapaluogoComuneId");
+
+                    b.HasIndex("RegionId");
+
+                    b.HasIndex("WikipediaPagePath")
+                        .IsUnique();
+
+                    b.ToTable("Provinces");
+                });
+
+            modelBuilder.Entity("ItalyGeo.API.Models.Domain.Region", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Acronym")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("AreaKm2")
+                        .HasColumnType("real");
+
+                    b.Property<Guid?>("CapaluogoComuneId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ComuneCount")
+                        .HasColumnType("int");
+
+                    b.Property<float>("GDPNominalMlnEuro")
+                        .HasColumnType("real");
+
+                    b.Property<float>("GDPPerCapitaEuro")
+                        .HasColumnType("real");
+
+                    b.Property<float>("InhabitantsPerKm2")
+                        .HasColumnType("real");
+
+                    b.Property<decimal>("Latitude")
+                        .HasColumnType("decimal(12, 9)");
+
+                    b.Property<decimal>("Longitude")
+                        .HasColumnType("decimal(12, 9)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Population")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProvinceCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Timezone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WikipediaPagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CapaluogoComuneId");
+
+                    b.HasIndex("WikipediaPagePath")
+                        .IsUnique();
+
+                    b.ToTable("Regions");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -143,11 +325,11 @@ namespace ItalyGeo.API.Migrations.ItalyGeoAuthDb
                         {
                             Id = "0D6719C0-0E6B-433D-A8F6-145239C867F8",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "5903e8a0-d5dd-4c1e-9fdf-1e932a713e07",
+                            ConcurrencyStamp = "9bd5fef5-505f-44e9-a493-a40e3d5b7fb2",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKChqrsCBYOqOny0RC6xy48crjb9hQLqUlrSube9hRun59BMCV9ucUKfxf+PqXMeHQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGFh0tUr4baxM8eEvaoy18LbIAjVvbcxYJRcy21DSsLZJH1Lw8Hvr5eJCLsmoKjbsg==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -185,7 +367,7 @@ namespace ItalyGeo.API.Migrations.ItalyGeoAuthDb
                             Id = 1,
                             ClaimType = "Admin",
                             ClaimValue = "True",
-                            UserId = "hQ40:)2%FMXw"
+                            UserId = "0D6719C0-0E6B-433D-A8F6-145239C867F8"
                         });
                 });
 
@@ -243,6 +425,43 @@ namespace ItalyGeo.API.Migrations.ItalyGeoAuthDb
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("ItalyGeo.API.Models.Domain.Comune", b =>
+                {
+                    b.HasOne("ItalyGeo.API.Models.Domain.Province", "Province")
+                        .WithMany()
+                        .HasForeignKey("ProvinceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Province");
+                });
+
+            modelBuilder.Entity("ItalyGeo.API.Models.Domain.Province", b =>
+                {
+                    b.HasOne("ItalyGeo.API.Models.Domain.Comune", "CapaluogoComune")
+                        .WithMany()
+                        .HasForeignKey("CapaluogoComuneId");
+
+                    b.HasOne("ItalyGeo.API.Models.Domain.Region", "Region")
+                        .WithMany()
+                        .HasForeignKey("RegionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CapaluogoComune");
+
+                    b.Navigation("Region");
+                });
+
+            modelBuilder.Entity("ItalyGeo.API.Models.Domain.Region", b =>
+                {
+                    b.HasOne("ItalyGeo.API.Models.Domain.Comune", "CapaluogoComune")
+                        .WithMany()
+                        .HasForeignKey("CapaluogoComuneId");
+
+                    b.Navigation("CapaluogoComune");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -11,29 +11,36 @@ using WikiDataExtractor.Models.ItalyGeo.Province;
 using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Province;
 using WikiDataExtractor.Models.ItalyGeo.Comune;
 using ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Comune;
+using Microsoft.Extensions.Configuration;
 
 class Program
 {
     static async Task Main(string[] args)
     {
         var host = CreateHostBuilder(args).Build();
-        /*var configuration = new ConfigurationBuilder()
-             .AddJsonFile($"servicesettings.json");
-        var config = configuration.Build();*/
 
         var italyGeoApi = host.Services.GetRequiredService<IItalyGeoApi>();
         var wikipediaApi = host.Services.GetRequiredService<IWikipediaApi>();
         var logger = host.Services.GetRequiredService<Serilog.ILogger>();
 
+        // Retrieve App Secrets
+        IConfiguration config = new ConfigurationBuilder()
+            .AddUserSecrets<Program>()
+            .Build();
+
+        string username = config.GetValue<string>("ItalyGeoApi:Username");
+        string password = config.GetValue<string>("ItalyGeoApi:Password");
+
         Credential credential = new()
         {
-            Username = "admin",
-            Password = "password"
+            Username = username,
+            Password = password
         };
 
         if (await italyGeoApi.AuthenticateAsync(credential))
         {
-            /*RegionManipulator regionManipulator = new(wikipediaApi, italyGeoApi, logger);
+            
+            RegionManipulator regionManipulator = new(wikipediaApi, italyGeoApi, logger);
             var regionsHtml = await wikipediaApi.GetPageHtmlAsync(WikiHelper.RegionsOfItalyPagePath);
             if (regionsHtml == null)
             {
@@ -62,7 +69,7 @@ class Program
                     }
                 }
             });
-
+            
             ProvinceManipulator provinceManipulator = new(wikipediaApi, italyGeoApi, logger);
             var provincesHtml = await wikipediaApi.GetPageHtmlAsync(WikiHelper.ProvincesOfItalyPagePath);
             var provincesToProcess = await provinceManipulator.ParseHtmlAsync(provincesHtml);
@@ -86,11 +93,10 @@ class Program
                         logger.Error($"UPDATE of province {updateProvinceRequest.Name} resulted in {response.StatusCode.ToString()} - {await response.Content.ReadAsStringAsync()}");
                     }
                 }
-            });*/
-
+            });
+            
             ComuneManipulator comuneManipulator = new(wikipediaApi, italyGeoApi, logger);
             var comunesHtml = await wikipediaApi.GetPageHtmlAsync(WikiHelper.ComunesOfItalyPagePath);
-
             await foreach (var listComunesByLetter in comuneManipulator.ParseHtmlAsync(comunesHtml))
             {
                 await Parallel.ForEachAsync(listComunesByLetter, new ParallelOptions() { MaxDegreeOfParallelism = 5 }, async (comuneByLetter, ct) =>

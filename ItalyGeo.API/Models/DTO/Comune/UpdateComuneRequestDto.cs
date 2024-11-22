@@ -19,9 +19,6 @@ namespace ItalyGeo.API.Models.DTO.Comune
         public float InhabitantsPerKm2 { get; set; }
         public string? ZipCode { get; set; }
         public string? Timezone { get; set; }
-        public string? InhabitantName { get; set; }
-        public string? PublicHoliday { get; set; }
-        public string? PatronSaint { get; set; }
 
         // Validate if ProvinceId exists (taken from https://stackoverflow.com/a/53089588/10691380) 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

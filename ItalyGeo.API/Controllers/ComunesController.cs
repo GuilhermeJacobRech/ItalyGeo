@@ -24,7 +24,7 @@ namespace ItalyGeo.API.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetAllAsync([FromQuery] string? filterOn, [FromQuery] string? filterQuery, 
-            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000, [FromQuery] bool orderByDescending = false)
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 100, [FromQuery] bool orderByDescending = false)
         {
             var comunesDomain = await _comuneRepository.GetAllAsync(filterOn, filterQuery, pageNumber, pageSize, orderByDescending);
             var comunesDto = _mapper.Map<List<ComuneDto>>(comunesDomain);

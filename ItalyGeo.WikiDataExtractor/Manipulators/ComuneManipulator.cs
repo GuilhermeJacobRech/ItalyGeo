@@ -51,7 +51,6 @@ namespace WikiDataExtractor.Manipulators
             var nodeA = li.SelectSingleNode("a");
             var comunesByLetterWikiPath = StringHelper.SanitizeString(nodeA.Attributes["href"].Value, false, true);
             var html = await _wikipediaApi.GetPageHtmlAsync(comunesByLetterWikiPath);
-
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(html);
 
@@ -153,14 +152,14 @@ namespace WikiDataExtractor.Manipulators
             }
 
             // Get Comune on ItalyGeo
-            var comuneResponse = await _italyGeoApi.GetComuneByWikiPagePathAsync(comuneWikiPagePath);
+            var comuneItalyGeoResponse = await _italyGeoApi.GetComuneByWikiPagePathAsync(comuneWikiPagePath);
             ComuneDto? comuneDto = await ParseComuneWikiPage(comuneWikiPagePath);
 
-            if (comuneResponse != null && comuneDto != null)
+            if (comuneItalyGeoResponse != null && comuneDto != null)
             {
                 return new UpdateComuneRequest
                 {
-                    Id = comuneResponse.Id,
+                    Id = comuneItalyGeoResponse.Id,
                     ProvinceId = provinceResponse.Id,
                     Name = comuneName,
                     WikipediaPagePath = comuneWikiPagePath,
@@ -171,13 +170,10 @@ namespace WikiDataExtractor.Manipulators
                     Population = comuneDto.Population,
                     Timezone = comuneDto.Timezone,
                     AltitudeAboveSeaMeterMSL = comuneDto.AltitudeAboveSeaMeterMSL,
-                    InhabitantName = comuneDto.InhabitantName,
-                    PatronSaint = comuneDto.PatronSaint,
-                    PublicHoliday = comuneDto.PublicHoliday,
                     ZipCode = comuneDto.ZipCode
                 };
             }
-            if (comuneDto == null && comuneDto != null)
+            if (comuneItalyGeoResponse == null && comuneDto != null)
             {
                 return new AddComuneRequest
                 {
@@ -191,13 +187,9 @@ namespace WikiDataExtractor.Manipulators
                     Population = comuneDto.Population,
                     Timezone = comuneDto.Timezone,
                     AltitudeAboveSeaMeterMSL = comuneDto.AltitudeAboveSeaMeterMSL,
-                    InhabitantName = comuneDto.InhabitantName,
-                    PatronSaint = comuneDto.PatronSaint,
-                    PublicHoliday = comuneDto.PublicHoliday,
                     ZipCode = comuneDto.ZipCode
                 };
             }
-
             return null;
         }
 
@@ -270,24 +262,6 @@ namespace WikiDataExtractor.Manipulators
                     if (headerText.Contains("fuso orario"))
                     {
                         comuneToProcess.Timezone = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
-                        return;
-                    }
-
-                    if (headerText.Contains("giorno festivo"))
-                    {
-                        comuneToProcess.PublicHoliday = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, true, true);
-                        return;
-                    }
-
-                    if (headerText.Contains("patrono"))
-                    {
-                        comuneToProcess.PatronSaint = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, false, true);
-                        return;
-                    }
-
-                    if (headerText.Equals("nome abitanti") || headerText.Equals("nome abitantinome abitanti"))
-                    {
-                        comuneToProcess.InhabitantName = StringHelper.SanitizeString(tr.SelectSingleNode("td").InnerText, false, true);
                         return;
                     }
 

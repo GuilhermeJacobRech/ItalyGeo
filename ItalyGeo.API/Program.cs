@@ -7,10 +7,19 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
+using ItalyGeo.API.Middlewares;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var logger = new LoggerConfiguration()
+            .WriteTo()
+            .MinimumLevel.Information()
+            .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -19,10 +28,7 @@ builder.Services.AddSwaggerGen();
 
 // Injects DbContext
 builder.Services.AddDbContext<ItalyGeoDbContext>(options =>
-options.UseSqlServer(builder.Configuration["ConnectionStrings:ItalyGeo:SqlServer"]));
-
-builder.Services.AddDbContext<ItalyGeoAuthDbContext>(options =>
-options.UseSqlServer(builder.Configuration["ConnectionStrings:ItalyGeoAuth:SqlServer"]));
+options.UseSqlServer(builder.Configuration["ConnectionStrings:ItalyGeo:SqlServerLocal"]));
 
 builder.Services.AddScoped<IComuneRepository, SqlComuneRepository>();
 builder.Services.AddScoped<IProvinceRepository, SqlProvinceRepository>();
@@ -50,10 +56,8 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
-
 builder.Services.AddIdentityCore<IdentityUser>()
-    .AddEntityFrameworkStores<ItalyGeoAuthDbContext>()
+    .AddEntityFrameworkStores<ItalyGeoDbContext>()
     .AddDefaultTokenProviders();
 
 builder.Services.AddAuthorization(options =>
@@ -61,7 +65,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly",
         policy => policy.RequireClaim("Admin"));
 });
-
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -96,6 +99,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

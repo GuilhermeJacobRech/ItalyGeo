@@ -26,7 +26,7 @@ namespace ItalyGeo.API.Models.DTO.Province
         public float GDPNominalMlnEuro { get; set; }
         public float GDPPerCapitaEuro { get; set; }
 
-        // Validate if RegionId exists (taken from https://stackoverflow.com/a/53089588/10691380) 
+        // Validate if RegionId and CapaluogoComuneId if not null exists (taken from https://stackoverflow.com/a/53089588/10691380) 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             var _context = validationContext.GetService(typeof(ItalyGeoDbContext));
@@ -35,6 +35,12 @@ namespace ItalyGeo.API.Models.DTO.Province
                 var italyGeoDbContext = (ItalyGeoDbContext)_context;
                 var region = italyGeoDbContext.Regions.FirstOrDefault(x => x.Id == RegionId);
                 if (region == null) yield return new ValidationResult("RegionId not found.");
+
+                if (CapaluogoComuneId != null)
+                {
+                    var comune = italyGeoDbContext.Comunes.FirstOrDefault(x => x.Id == CapaluogoComuneId);
+                    if (comune == null) yield return new ValidationResult("CapaluogoComuneId not found.");
+                }
             }
         }
     }

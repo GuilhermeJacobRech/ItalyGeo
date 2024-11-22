@@ -20,8 +20,5 @@ namespace ItalyGeo.WikiDataExtractor.Models.ItalyGeoApi.Comune
         public float InhabitantsPerKm2 { get; set; }
         public string ZipCode { get; set; } = "null";
         public string Timezone { get; set; } = "null";
-        public string InhabitantName { get; set; } = "null";
-        public string PublicHoliday { get; set; } = "null";
-        public string PatronSaint { get; set; } = "null";
     }
 }
