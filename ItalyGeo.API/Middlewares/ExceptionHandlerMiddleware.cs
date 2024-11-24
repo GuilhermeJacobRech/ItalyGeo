@@ -32,7 +32,7 @@ namespace ItalyGeo.API.Middlewares
                 var error = new
                 {
                     Id = errorId,
-                    ErrorMessage = "Something went wrong! I'm sorry, please hire me :("
+                    ErrorMessage = "Something went wrong. Please wait a few seconds and try to reload the page as this API is hosted on Azure's free tier, it can cause temporary downtime when services are inactive."
                 };
 
                 await httpContext.Response.WriteAsJsonAsync(error);
