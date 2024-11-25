@@ -54,12 +54,12 @@ namespace ItalyGeo.API.Repositories
 
         public async Task<Comune?> GetByIdAsync(Guid id)
         {
-            return await _dbContext.Comunes.Include("Province").FirstOrDefaultAsync(x => x.Id == id);
+            return await _dbContext.Comunes.Include("Province").Include(x => x.Province.Region).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Comune?> GetByWikiPagePathAsync(string WikiPagePath)
         {
-            return await _dbContext.Comunes.FirstOrDefaultAsync(x => x.WikipediaPagePath == WikiPagePath);
+            return await _dbContext.Comunes.Include("Province").Include(x => x.Province.Region).FirstOrDefaultAsync(x => x.WikipediaPagePath == WikiPagePath);
         }
 
         public async Task<Comune> CreateAsync(Comune comune)

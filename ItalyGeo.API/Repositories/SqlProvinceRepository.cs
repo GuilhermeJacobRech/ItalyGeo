@@ -49,11 +49,11 @@ namespace ItalyGeo.API.Repositories
 
         public async Task<Province?> GetByIdAsync(Guid id)
         {
-            return await _dbContext.Provinces.FirstOrDefaultAsync(x => x.Id == id);
+            return await _dbContext.Provinces.Include(x => x.Region).FirstOrDefaultAsync(x => x.Id == id);
         }
         public async Task<Province?> GetByWikiPagePathAsync(string WikiPagePath)
         {
-            return await _dbContext.Provinces.FirstOrDefaultAsync(x => x.WikipediaPagePath == WikiPagePath);
+            return await _dbContext.Provinces.Include(x => x.Region).FirstOrDefaultAsync(x => x.WikipediaPagePath == WikiPagePath);
         }
 
         public async Task<Province> CreateAsync(Province province)
