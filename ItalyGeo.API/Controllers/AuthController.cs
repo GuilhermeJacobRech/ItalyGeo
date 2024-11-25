@@ -4,6 +4,7 @@ using ItalyGeo.API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ItalyGeo.API.Controllers
 {
@@ -20,6 +21,8 @@ namespace ItalyGeo.API.Controllers
             this._tokenRepository = tokenRepository;
         }
 
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(AuthenticateResponseDto))]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, Description = "If username/password does not match.")]
         [HttpPost]
         public async Task<IActionResult> Authenticate([FromBody] AuthenticateRequestDto authenticateRequestDto)
         {
@@ -44,7 +47,8 @@ namespace ItalyGeo.API.Controllers
                     return Ok(response);
                 }
 
-                return BadRequest("Username or password incorrect.");
+                // Returns Unauthorized as per https://stackoverflow.com/a/32752617/10691380
+                return Unauthorized("Username or password incorrect.");
             }
             else
             {

@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using ItalyGeo.API.Models.Domain;
+using ItalyGeo.API.Models.DTO.Comune;
 using ItalyGeo.API.Models.DTO.Province;
 using ItalyGeo.API.Models.DTO.Region;
 using ItalyGeo.API.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ItalyGeo.API.Controllers
 {
@@ -22,8 +24,12 @@ namespace ItalyGeo.API.Controllers
             this._mapper = mapper;
         }
 
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(List<ProvinceDto>))]
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync([FromQuery] string? filterOn, [FromQuery] string? filterQuery, [FromQuery] bool orderByDescending = false)
+        public async Task<IActionResult> GetAllAsync(
+            [FromQuery, SwaggerParameter("Valid values are 'provincename' or 'regionname'")] string? filterOn, 
+            [FromQuery] string? filterQuery, 
+            [FromQuery] bool orderByDescending = false)
         {
             var provincesDomain = await _provinceRepository.GetAllAsync(filterOn, filterQuery, orderByDescending);
             var provincesDto = _mapper.Map<List<ProvinceDto>>(provincesDomain);
@@ -32,6 +38,8 @@ namespace ItalyGeo.API.Controllers
             return Ok(provincesDto);
         }
 
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(ProvinceDto))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, Type = typeof(NotFoundResult))]
         [HttpGet]
         [Route("{id:Guid}")]
         public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
@@ -42,9 +50,12 @@ namespace ItalyGeo.API.Controllers
             return Ok(regionDto);
         }
 
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(ProvinceDto))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, Type = typeof(NotFoundResult))]
         [HttpGet]
         [Route("wikipath/{wikiPath}")]
-        public async Task<IActionResult> GetByWikiPagePathAsync([FromRoute] string wikiPath)
+        public async Task<IActionResult> GetByWikiPagePathAsync(
+            [FromRoute, SwaggerParameter("Value must not contain any '/', valid examples are: 'Valle_d'Aosta', 'Città_metropolitana_di_Bari'")] string wikiPath)
         {
             var provinceDomain = await _provinceRepository.GetByWikiPagePathAsync(wikiPath);
             if (provinceDomain == null) return NotFound();
@@ -52,6 +63,9 @@ namespace ItalyGeo.API.Controllers
             return Ok(provinceDto);
         }
 
+        [SwaggerOperation(Summary = "AUTHORIZATION REQUIRED - Creates a new province")]
+        [SwaggerResponse(StatusCodes.Status201Created, Type = typeof(ProvinceDto))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Type = typeof(BadRequestResult))]
         [HttpPost]
         [Authorize(policy: "AdminOnly")]
         public async Task<IActionResult> CreateAsync([FromBody] AddProvinceRequestDto addProvinceRequestDto)
@@ -68,6 +82,9 @@ namespace ItalyGeo.API.Controllers
             }
         }
 
+        [SwaggerOperation(Summary = "AUTHORIZATION REQUIRED - Updates an existing province")]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(ProvinceDto))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Type = typeof(BadRequestResult))]
         [HttpPut]
         [Route("{id:guid}")]
         [Authorize(policy: "AdminOnly")]
@@ -87,6 +104,9 @@ namespace ItalyGeo.API.Controllers
             }
         }
 
+        [SwaggerOperation(Summary = "AUTHORIZATION REQUIRED - Deletes an existing province")]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(ProvinceDto))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Type = typeof(BadRequestResult))]
         [HttpDelete]
         [Route("{id:guid}")]
         [Authorize(policy: "AdminOnly")]

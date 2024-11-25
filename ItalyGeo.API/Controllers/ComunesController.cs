@@ -6,6 +6,7 @@ using ItalyGeo.API.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ItalyGeo.API.Controllers
 {
@@ -22,8 +23,11 @@ namespace ItalyGeo.API.Controllers
             this._mapper = mapper;
         }
 
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(List<ComuneDto>))]
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync([FromQuery] string? filterOn, [FromQuery] string? filterQuery, 
+        public async Task<IActionResult> GetAllAsync(
+            [FromQuery, SwaggerParameter("Valid values are 'comunename', 'provincename' or 'regionname'")] string? filterOn, 
+            [FromQuery] string? filterQuery,
             [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 100, [FromQuery] bool orderByDescending = false)
         {
             var comunesDomain = await _comuneRepository.GetAllAsync(filterOn, filterQuery, pageNumber, pageSize, orderByDescending);
@@ -33,6 +37,8 @@ namespace ItalyGeo.API.Controllers
             return Ok(comunesDto);
         }
 
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(ComuneDto))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, Type = typeof(NotFoundResult))]
         [HttpGet]
         [Route("{id:Guid}")]
         public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
@@ -44,10 +50,13 @@ namespace ItalyGeo.API.Controllers
             // Return DTO
             return Ok(comuneDto);
         }
-
+        
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(ComuneDto))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, Type = typeof(NotFoundResult))]
         [HttpGet]
         [Route("wikipath/{wikiPath}")]
-        public async Task<IActionResult> GetByWikiPagePathAsync([FromRoute] string wikiPath)
+        public async Task<IActionResult> GetByWikiPagePathAsync(
+            [FromRoute, SwaggerParameter("Value must not contain any '/', valid examples are: 'Abbadia_Lariana', 'Acuto_(Italia)', 'Albano_Sant'Alessandro'")] string wikiPath)
         {
             var comuneDomain = await _comuneRepository.GetByWikiPagePathAsync(wikiPath);
             if (comuneDomain == null) return NotFound();
@@ -55,6 +64,9 @@ namespace ItalyGeo.API.Controllers
             return Ok(comuneDto);
         }
 
+        [SwaggerOperation(Summary = "AUTHORIZATION REQUIRED - Creates a new comune")]
+        [SwaggerResponse(StatusCodes.Status201Created, Type = typeof(ComuneDto))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Type = typeof(BadRequestResult))]
         [HttpPost]
         [Authorize(policy: "AdminOnly")]
         public async Task<IActionResult> CreateAsync([FromBody] AddComuneRequestDto addComuneRequestDto)
@@ -71,6 +83,9 @@ namespace ItalyGeo.API.Controllers
             }
         }
 
+        [SwaggerOperation(Summary = "AUTHORIZATION REQUIRED - Updates an existing comune")]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(ComuneDto))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Type = typeof(BadRequestResult))]
         [HttpPut]
         [Route("{id:guid}")]
         [Authorize(policy: "AdminOnly")]
@@ -90,6 +105,9 @@ namespace ItalyGeo.API.Controllers
             }
         }
 
+        [SwaggerOperation(Summary = "AUTHORIZATION REQUIRED - Deletes an existing comune")]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(ComuneDto))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Type = typeof(BadRequestResult))]
         [HttpDelete]
         [Route("{id:guid}")]
         [Authorize(policy: "AdminOnly")]
